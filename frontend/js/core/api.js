@@ -60,3 +60,21 @@ export async function api(path, { method = "GET", body, form, auth = true, signa
   }
   return data;
 }
+
+/** Download a file the API protects (e.g. a CSV export): the browser cannot send the token on a plain link. */
+export async function download(path, filename) {
+  const token = getToken();
+  let response;
+  try {
+    response = await fetch(API + path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  } catch {
+    throw new ApiError("Cannot reach the server. Check your connection and try again.", 0);
+  }
+  if (!response.ok) throw new ApiError(`Download failed (error ${response.status})`, response.status);
+  const url = URL.createObjectURL(await response.blob());
+  const link = Object.assign(document.createElement("a"), { href: url, download: filename });
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}

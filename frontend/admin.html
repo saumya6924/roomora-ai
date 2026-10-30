@@ -3,59 +3,407 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roomora AI - Admin Dashboard</title>
+  <title>Roomora AI - Admin Panel</title>
   <link rel="icon" href="assets/img/logo.png">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/panel-extras.css">
 </head>
-<body data-roles="admin">
-  <div class="sidebar-overlay" id="sidebarOverlay" data-action="close-sidebar"></div>
-  <div class="layout">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-logo"><img src="assets/img/logo.png" alt="Roomora AI logo"></div>
-        <div><h2>Roomora AI</h2><span>ADMIN PANEL</span></div>
-      </div>
-      <div class="sidebar-profile">
-        <div class="avatar" data-user-initials></div>
-        <div><strong data-user-name></strong><small data-user-role></small></div>
-      </div>
-      <nav class="sidebar-nav">
-        <button class="nav-item" data-section="overview"><span>▦</span> Overview</button>
-      </nav>
-      <div class="sidebar-bottom">
-        <button class="nav-item" data-action="logout"><span>↪</span> Logout</button>
-      </div>
-    </aside>
+<body>
 
-    <div class="main">
-      <header class="topbar">
-        <button class="mobile-menu" data-action="open-sidebar" aria-label="Open menu">☰</button>
-        <div class="topbar-actions">
-          <div class="top-profile">
-            <div class="avatar" data-user-initials></div>
-            <div><strong data-user-name></strong><small data-user-role></small></div>
-          </div>
-        </div>
-      </header>
+<div id="sidebarOverlay" class="sidebar-overlay" data-action="close-sidebar"></div>
 
-      <section id="overview" class="section">
-        <div class="heading">
-          <div>
-            <span class="eyebrow">ADMIN PANEL</span>
-            <h1>Admin Dashboard</h1>
-            <p>Signed in as <strong data-user-name></strong>.</p>
-          </div>
-        </div>
-        <div class="card">
-          <p>This page is being rebuilt on the new backend and will appear in a later phase.</p>
-        </div>
-      </section>
-    </div>
+<!-- SIDEBAR -->
+<aside id="sidebar" class="sidebar">
+  <div class="sidebar-brand">
+    <div class="admin-logo"><img src="assets/img/logo.png" alt="Roomora AI Logo"></div>
+    <div><h2>Roomora AI</h2><span>ADMIN PANEL</span></div>
   </div>
 
-  <script src="config.js"></script>
-  <script type="module" src="js/pages/stub.js"></script>
+  <div class="admin-profile">
+    <div class="admin-avatar" data-user-initials></div>
+    <div><strong data-user-name></strong><small>Super Administrator</small></div>
+  </div>
+
+  <nav class="sidebar-navigation">
+    <button class="sidebar-link" data-section="dashboard"><span>▦</span> Dashboard</button>
+    <button class="sidebar-link" data-section="users"><span>👥</span> Users</button>
+    <button class="sidebar-link" data-section="furniture"><span>🛋️</span> Furniture</button>
+    <button class="sidebar-link" data-section="designers"><span>🎨</span> Designers</button>
+    <button class="sidebar-link" data-section="orders"><span>📦</span> Orders</button>
+    <button class="sidebar-link" data-section="requests"><span>🔔</span> Designer Requests <span class="notification-count" id="requestCount" style="display:none"></span></button>
+    <button class="sidebar-link" data-section="sellers"><span>🏪</span> Sellers</button>
+    <button class="sidebar-link" data-section="reports"><span>📊</span> Reports</button>
+    <button class="sidebar-link" data-section="settings"><span>⚙️</span> Settings</button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="sidebar-link logout-link" data-action="logout"><span>↪</span> Logout</button>
+  </div>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="admin-main">
+
+  <header class="admin-topbar">
+    <button class="mobile-menu" data-action="open-sidebar">☰</button>
+    <div class="topbar-search">
+      <span>🔍</span>
+      <input type="search" placeholder="Search users, orders, furniture..." id="globalSearch">
+    </div>
+    <div class="topbar-actions">
+      <button class="top-icon" data-action="notifications">🔔 <span class="red-dot" style="display:none"></span></button>
+      <div class="admin-user-menu">
+        <div class="small-avatar" data-user-initials></div>
+        <div class="top-admin-name"><strong data-user-name></strong><small>Super Admin</small></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">ADMINISTRATION</span>
+        <h1>Dashboard</h1>
+        <p>Welcome back. Here's what's happening across Roomora AI.</p>
+      </div>
+      <button class="primary-admin-button" data-action="export-orders">↓ Export Report</button>
+    </div>
+
+    <div class="statistics-grid">
+      <div class="stat-card"><div class="stat-icon users-icon">👥</div><div><span>Total Users</span><h2 id="dsUsers">–</h2><small class="positive" id="dsUsersNote"></small></div></div>
+      <div class="stat-card"><div class="stat-icon active-icon">●</div><div><span>Active Users</span><h2 id="dsActive">–</h2><small class="positive" id="dsActiveNote"></small></div></div>
+      <div class="stat-card"><div class="stat-icon product-icon">🛋️</div><div><span>Furniture Products</span><h2 id="dsProducts">–</h2><small class="warning" id="dsProductsNote"></small></div></div>
+      <div class="stat-card"><div class="stat-icon designer-icon">🎨</div><div><span>Designers</span><h2 id="dsDesigners">–</h2><small class="positive" id="dsDesignersNote"></small></div></div>
+    </div>
+
+    <div class="statistics-grid second-stats">
+      <div class="stat-card revenue-card"><div class="stat-icon">₹</div><div><span>Monthly Revenue</span><h2 id="dsRevenue">–</h2><small class="positive" id="dsRevenueNote"></small></div></div>
+      <div class="stat-card"><div class="stat-icon order-icon">📦</div><div><span>Total Orders</span><h2 id="dsOrders">–</h2><small class="positive" id="dsOrdersNote"></small></div></div>
+      <div class="stat-card"><div class="stat-icon pending-icon">⏳</div><div><span>Pending Requests</span><h2 id="dsPending">–</h2><small class="warning">Needs attention</small></div></div>
+      <div class="stat-card"><div class="stat-icon seller-icon">🏪</div><div><span>Furniture Sellers</span><h2 id="dsSellers">–</h2><small class="positive" id="dsSellersNote"></small></div></div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="admin-card large-card">
+        <div class="card-heading">
+          <div><h3>Recent Orders</h3><p>Latest furniture and designer orders</p></div>
+          <button class="text-button" data-section="orders">View All →</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="dsRecent"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-heading"><div><h3>Quick Actions</h3><p>Manage your platform</p></div></div>
+        <div class="quick-actions">
+          <button data-section="users"><span>👥</span><div><strong>Manage Users</strong><small>View all accounts</small></div></button>
+          <button data-section="furniture"><span>🛋️</span><div><strong>Review Products</strong><small>Approve furniture</small></div></button>
+          <button data-section="designers"><span>🎨</span><div><strong>Manage Designers</strong><small>Check availability</small></div></button>
+          <button data-section="requests"><span>🔔</span><div><strong>Requests</strong><small id="qaRequests">Designer bookings</small></div></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="admin-card">
+        <div class="card-heading"><div><h3>Platform Activity</h3><p>Today's overview</p></div></div>
+        <div class="activity-list" id="dsActivity"></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-heading">
+          <div><h3>System Status</h3><p>Roomora AI services</p></div>
+          <span class="online-badge">● All Systems Operational</span>
+        </div>
+        <div class="system-status">
+          <div><span>Website</span><strong class="online">Operational</strong></div>
+          <div><span>Authentication</span><strong class="online">Operational</strong></div>
+          <div><span>Database</span><strong class="online" id="sysDatabase">Operational</strong></div>
+          <div><span>AI Service</span><strong class="online" id="sysAi">Operational</strong></div>
+          <div><span>Payments</span><strong class="online">Record only</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USERS -->
+  <section id="users" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">USER MANAGEMENT</span>
+        <h1>Users</h1>
+        <p>Manage all Roomora AI accounts.</p>
+      </div>
+      <button class="primary-admin-button" data-action="export-users">↓ Export Users</button>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-box">🔍 <input id="userSearch" placeholder="Search user..."></div>
+      <select id="userStatusFilter">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="blocked">Blocked</option>
+      </select>
+      <select id="userRoleFilter">
+        <option value="">All Users</option>
+        <option value="user">Customers</option>
+        <option value="seller">Sellers</option>
+        <option value="designer">Designers</option>
+        <option value="admin">Admins</option>
+      </select>
+    </div>
+
+    <div class="admin-card">
+      <div class="table-wrapper">
+        <table id="usersTable">
+          <thead><tr><th>User</th><th>Email</th><th>Mobile</th><th>Role</th><th>Orders</th><th>Last Active</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FURNITURE -->
+  <section id="furniture" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">PRODUCT MANAGEMENT</span>
+        <h1>Furniture</h1>
+        <p>Review furniture listed by sellers.</p>
+      </div>
+      <button class="primary-admin-button" data-action="add-product">+ Add Product</button>
+    </div>
+
+    <div class="statistics-grid">
+      <div class="mini-stat"><span>Total Products</span><strong id="fuTotal">–</strong></div>
+      <div class="mini-stat"><span>Approved</span><strong class="green-text" id="fuApproved">–</strong></div>
+      <div class="mini-stat"><span>Pending</span><strong class="orange-text" id="fuPending">–</strong></div>
+      <div class="mini-stat"><span>Out of Stock</span><strong class="red-text" id="fuOut">–</strong></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-box">🔍 <input id="productSearch" placeholder="Search furniture..."></div>
+      <select id="productCategoryFilter">
+        <option value="">All Categories</option>
+        <option>Sofa</option><option>Chair</option><option>Table</option><option>Bed</option><option>Dining</option><option>Lighting</option><option>Decor</option>
+      </select>
+      <select id="productStatusFilter">
+        <option value="">All Status</option>
+        <option value="approved">Approved</option>
+        <option value="pending">Pending</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+
+    <div class="admin-card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGNERS -->
+  <section id="designers" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">DESIGNER MANAGEMENT</span>
+        <h1>Designers</h1>
+        <p>Manage designer profiles, availability and verification.</p>
+      </div>
+      <button class="primary-admin-button" data-action="add-designer">+ Add Designer</button>
+    </div>
+    <div class="designer-admin-grid" id="designerGrid"></div>
+  </section>
+
+  <!-- ORDERS -->
+  <section id="orders" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">ORDER MANAGEMENT</span>
+        <h1>Orders</h1>
+        <p>Track furniture purchases and designer bookings.</p>
+      </div>
+      <button class="primary-admin-button" data-action="export-orders">↓ Export Orders</button>
+    </div>
+
+    <div class="statistics-grid">
+      <div class="mini-stat"><span>Today's Orders</span><strong id="orToday">–</strong></div>
+      <div class="mini-stat"><span>Processing</span><strong class="orange-text" id="orProcessing">–</strong></div>
+      <div class="mini-stat"><span>Delivered</span><strong class="green-text" id="orDelivered">–</strong></div>
+      <div class="mini-stat"><span>Cancelled</span><strong class="red-text" id="orCancelled">–</strong></div>
+    </div>
+
+    <div class="admin-card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Type</th><th>Item / Designer</th><th>Amount</th><th>Payment</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGNER REQUESTS -->
+  <section id="requests" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">REQUEST MANAGEMENT</span>
+        <h1>Designer Requests</h1>
+        <p>Monitor requests between customers and interior designers.</p>
+      </div>
+    </div>
+    <div class="request-grid" id="requestGrid"></div>
+  </section>
+
+  <!-- SELLERS -->
+  <section id="sellers" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">SELLER MANAGEMENT</span>
+        <h1>Furniture Sellers</h1>
+        <p>Manage furniture marketplace partners.</p>
+      </div>
+      <button class="primary-admin-button" data-action="add-seller">+ Add Seller</button>
+    </div>
+
+    <div class="statistics-grid">
+      <div class="mini-stat"><span>Total Sellers</span><strong id="seTotal">–</strong></div>
+      <div class="mini-stat"><span>Active</span><strong class="green-text" id="seActive">–</strong></div>
+      <div class="mini-stat"><span>Pending Verification</span><strong class="orange-text" id="sePending">–</strong></div>
+      <div class="mini-stat"><span>Suspended</span><strong class="red-text" id="seSuspended">–</strong></div>
+    </div>
+
+    <div class="admin-card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Seller</th><th>Business</th><th>Products</th><th>Orders</th><th>Revenue</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="sellersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section id="reports" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">ANALYTICS</span>
+        <h1>Reports</h1>
+        <p>Monitor Roomora AI performance.</p>
+      </div>
+      <button class="primary-admin-button" data-action="export-orders">↓ Download Report</button>
+    </div>
+
+    <div class="report-grid">
+      <div class="admin-card">
+        <h3>Revenue Overview</h3>
+        <p>Monthly platform revenue</p>
+        <div class="fake-chart" id="rpChart"></div>
+        <div class="chart-labels" id="rpLabels"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Order Distribution</h3>
+        <p>Furniture vs designer services</p>
+        <div class="donut-chart" id="rpDonut">
+          <div class="donut-center"><strong id="rpTotal">0</strong><small>Orders</small></div>
+        </div>
+        <div class="legend">
+          <span><i class="legend-furniture"></i> Furniture <b id="rpFurniture">0</b>%</span>
+          <span><i class="legend-designer"></i> Designer <b id="rpDesigner">0</b>%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card" style="margin-top:18px">
+      <div class="card-heading"><div><h3>Payout Requests</h3><p>Sellers and designers asking to be paid</p></div></div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Reference</th><th>Requested By</th><th>Role</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="payoutsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="admin-section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">ADMIN SETTINGS</span>
+        <h1>Settings</h1>
+        <p>Configure Roomora AI administration.</p>
+      </div>
+    </div>
+
+    <div class="settings-admin-grid">
+      <div class="admin-card">
+        <h3>Platform Settings</h3>
+        <div class="admin-setting"><div><strong>New User Registration</strong><p>Allow new users to create accounts.</p></div><label class="switch"><input type="checkbox" data-setting="allow_registration"><span class="slider"></span></label></div>
+        <div class="admin-setting"><div><strong>Furniture Marketplace</strong><p>Allow furniture sellers to list products.</p></div><label class="switch"><input type="checkbox" data-setting="marketplace_enabled"><span class="slider"></span></label></div>
+        <div class="admin-setting"><div><strong>Designer Bookings</strong><p>Allow users to request designers.</p></div><label class="switch"><input type="checkbox" data-setting="designer_bookings_enabled"><span class="slider"></span></label></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Notification Settings</h3>
+        <div class="admin-setting"><div><strong>Email Notifications</strong><p>Send account and order emails.</p></div><label class="switch"><input type="checkbox" data-setting="email_notifications"><span class="slider"></span></label></div>
+        <div class="admin-setting"><div><strong>Designer Notifications</strong><p>Notify designers of new requests.</p></div><label class="switch"><input type="checkbox" data-setting="designer_notifications"><span class="slider"></span></label></div>
+        <p class="muted-note" style="margin-top:12px;font-size:9px;color:#929080">Email sending is not set up yet; these switches are saved for when it is.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- GENERIC DETAILS MODAL -->
+<div class="panel-modal" id="detailModal">
+  <div class="panel-modal-content">
+    <div class="panel-modal-header"><h2 id="detailTitle"></h2><button data-close-modal aria-label="Close">✕</button></div>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="panel-modal" id="productModal">
+  <div class="panel-modal-content">
+    <div class="panel-modal-header"><h2>Add Product</h2><button data-close-modal aria-label="Close">✕</button></div>
+    <form id="productForm">
+      <div class="form-group"><label>Product name *</label><input id="apName" required minlength="2"></div>
+      <div class="form-group"><label>Category</label><select id="apCategory"><option>Sofa</option><option>Chair</option><option>Table</option><option>Bed</option><option>Dining</option><option>Lighting</option><option>Decor</option></select></div>
+      <div class="form-group"><label>Short description</label><input id="apShort"></div>
+      <div class="form-group"><label>Price (₹) *</label><input type="number" id="apPrice" min="1" required></div>
+      <div class="form-group"><label>Stock *</label><input type="number" id="apStock" min="0" required></div>
+      <div class="form-group"><label>Image URL</label><input id="apImage" placeholder="https://…"></div>
+      <button class="primary-button" type="submit">Add Product</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD DESIGNER / SELLER MODAL -->
+<div class="panel-modal" id="promoteModal">
+  <div class="panel-modal-content">
+    <div class="panel-modal-header"><h2 id="promoteTitle"></h2><button data-close-modal aria-label="Close">✕</button></div>
+    <form id="promoteForm">
+      <div class="form-group"><label>Choose an existing customer account</label><select id="pmUser" required></select></div>
+      <div class="form-group" id="pmDesignerFields">
+        <label>Speciality</label><input id="pmSpeciality" placeholder="Modern homes · Space planning">
+        <label style="margin-top:10px">Price per day (₹)</label><input type="number" id="pmPrice" min="1" value="4000">
+      </div>
+      <button class="primary-button" type="submit">Save</button>
+    </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script type="module" src="js/pages/admin.js"></script>
 </body>
 </html>

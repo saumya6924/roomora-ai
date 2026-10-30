@@ -22,15 +22,9 @@ function say(text, type = "error") {
 }
 
 function switchTo(signup) {
-  loginForm.classList.toggle("hidden", signup);
-  signupForm.classList.toggle("hidden", !signup);
-  for (const [tab, active] of [
-    [qs("#loginTab"), !signup],
-    [qs("#signupTab"), signup],
-  ]) {
-    tab.classList.toggle("active", active);
-    tab.setAttribute("aria-selected", String(active));
-  }
+  loginForm.style.display = signup ? "none" : "block";
+  signupForm.style.display = signup ? "block" : "none";
+  qsa(".auth-tab").forEach((tab) => tab.classList.toggle("active", (tab.dataset.tab === "signup") === signup));
   say("");
 }
 
@@ -40,9 +34,11 @@ function finishLogin(data, text) {
   window.location.replace(homeFor(data.user.role));
 }
 
-qs("#loginTab").addEventListener("click", () => switchTo(false));
-qs("#signupTab").addEventListener("click", () => switchTo(true));
-qs("#forgotLink").addEventListener("click", () => openModal("forgotModal"));
+qsa(".auth-tab").forEach((tab) => tab.addEventListener("click", () => switchTo(tab.dataset.tab === "signup")));
+qs("#forgotLink").addEventListener("click", (event) => {
+  event.preventDefault();
+  openModal("forgotModal");
+});
 
 qs("#signupPassword").addEventListener("input", (event) => {
   for (const el of qsa("[data-rule]")) {
@@ -53,17 +49,16 @@ qs("#signupPassword").addEventListener("input", (event) => {
 });
 
 qs("#signupEmail").addEventListener("input", (event) => {
-  const hint = qs("#emailHint");
+  const hint = qs("#emailError");
   const value = event.target.value.trim();
   if (!value) {
     hint.textContent = "";
-    hint.className = "form-hint";
   } else if (!GMAIL.test(value)) {
-    hint.textContent = "Please use an address ending in @gmail.com.";
-    hint.className = "form-hint error";
+    hint.textContent = "Please enter a valid Gmail address.";
+    hint.style.color = "#b85c52";
   } else {
     hint.textContent = "✓ Valid email";
-    hint.className = "form-hint ok";
+    hint.style.color = "#5b765d";
   }
 });
 
@@ -91,9 +86,9 @@ signupForm.addEventListener("submit", async (event) => {
   const password = qs("#signupPassword").value;
 
   if (!name || !mobile) return say("Please fill in all required fields.");
-  if (!GMAIL.test(email)) return say("Please use an email ending in @gmail.com.");
+  if (!GMAIL.test(email)) return say("Please enter a valid Gmail address.");
   if (!Object.values(PASSWORD_RULES).every((rule) => rule(password))) {
-    return say("Password needs 8+ characters, one capital letter, one number and one special character.");
+    return say("Password must contain at least 8 characters, one capital letter, one number and one special character.");
   }
   if (password !== qs("#confirmPassword").value) return say("Passwords do not match.");
 

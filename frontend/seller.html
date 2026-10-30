@@ -3,59 +3,542 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roomora AI - Seller Dashboard</title>
+  <title>Roomora AI - Seller Panel</title>
   <link rel="icon" href="assets/img/logo.png">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/seller.css">
+  <link rel="stylesheet" href="css/panel-extras.css">
 </head>
-<body data-roles="seller">
-  <div class="sidebar-overlay" id="sidebarOverlay" data-action="close-sidebar"></div>
-  <div class="layout">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-logo"><img src="assets/img/logo.png" alt="Roomora AI logo"></div>
-        <div><h2>Roomora AI</h2><span>SELLER PANEL</span></div>
-      </div>
-      <div class="sidebar-profile">
-        <div class="avatar" data-user-initials></div>
-        <div><strong data-user-name></strong><small data-user-role></small></div>
-      </div>
-      <nav class="sidebar-nav">
-        <button class="nav-item" data-section="overview"><span>▦</span> Overview</button>
-      </nav>
-      <div class="sidebar-bottom">
-        <button class="nav-item" data-action="logout"><span>↪</span> Logout</button>
-      </div>
-    </aside>
 
-    <div class="main">
-      <header class="topbar">
-        <button class="mobile-menu" data-action="open-sidebar" aria-label="Open menu">☰</button>
-        <div class="topbar-actions">
-          <div class="top-profile">
-            <div class="avatar" data-user-initials></div>
-            <div><strong data-user-name></strong><small data-user-role></small></div>
-          </div>
-        </div>
-      </header>
+<body>
 
-      <section id="overview" class="section">
-        <div class="heading">
-          <div>
-            <span class="eyebrow">SELLER PANEL</span>
-            <h1>Seller Dashboard</h1>
-            <p>Signed in as <strong data-user-name></strong>.</p>
-          </div>
-        </div>
-        <div class="card">
-          <p>This page is being rebuilt on the new backend and will appear in a later phase.</p>
-        </div>
-      </section>
+<div id="sidebarOverlay" class="sidebar-overlay" data-action="close-sidebar"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="sidebar">
+  <div class="brand">
+    <div class="brand-logo"><img src="assets/img/logo.png" alt="Roomora AI Logo"></div>
+    <div>
+      <h2>Roomora AI</h2>
+      <span>SELLER PANEL</span>
     </div>
   </div>
 
-  <script src="config.js"></script>
-  <script type="module" src="js/pages/stub.js"></script>
+  <div class="seller-profile">
+    <div class="seller-avatar" id="storeInitials"></div>
+    <div>
+      <strong id="storeNameSide"></strong>
+      <small>Furniture Seller</small>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-item" data-section="dashboard"><span>▦</span> Dashboard</button>
+    <button class="nav-item" data-section="products"><span>🛋️</span> My Products</button>
+    <button class="nav-item" data-section="addProduct"><span>＋</span> Add Product</button>
+    <button class="nav-item" data-section="orders"><span>📦</span> Orders</button>
+    <button class="nav-item" data-section="inventory"><span>📊</span> Inventory</button>
+    <button class="nav-item" data-section="customers"><span>👥</span> Customers</button>
+    <button class="nav-item" data-section="payments"><span>₹</span> Payments & Payouts</button>
+    <button class="nav-item" data-section="reviews"><span>★</span> Reviews</button>
+    <button class="nav-item" data-section="analytics"><span>📈</span> Analytics</button>
+    <button class="nav-item" data-section="settings"><span>⚙️</span> Settings</button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="nav-item logout" data-action="logout"><span>↪</span> Logout</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <header class="topbar">
+    <button class="mobile-menu" data-action="open-sidebar">☰</button>
+
+    <div class="search">
+      🔍
+      <input type="search" id="topSearch" placeholder="Search products, orders...">
+    </div>
+
+    <div class="top-actions">
+      <button class="icon-button" data-action="notifications">
+        🔔
+        <span class="notification-dot" style="display:none"></span>
+      </button>
+      <div class="top-profile">
+        <div class="small-avatar" id="storeInitialsTop"></div>
+        <div>
+          <strong id="storeNameTop"></strong>
+          <small>Seller</small>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">SELLER DASHBOARD</span>
+        <h1 id="greeting">Welcome</h1>
+        <p>Manage your furniture business from one place.</p>
+      </div>
+      <button class="primary-button" data-section="addProduct">+ Add New Product</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-icon">🛋️</div>
+        <div><span>Total Products</span><strong id="dsProducts">–</strong><small class="positive" id="dsProductsNote"></small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">📦</div>
+        <div><span>Total Orders</span><strong id="dsOrders">–</strong><small class="positive" id="dsOrdersNote"></small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">₹</div>
+        <div><span>This Month</span><strong id="dsRevenue">–</strong><small class="positive" id="dsRevenueNote"></small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">⭐</div>
+        <div><span>Average Rating</span><strong id="dsRating">–</strong><small id="dsRatingNote"></small></div>
+      </div>
+    </div>
+
+    <div class="stats second-stats">
+      <div class="mini-stat"><span>Pending Orders</span><strong class="orange" id="dsPending">–</strong></div>
+      <div class="mini-stat"><span>Low Stock</span><strong class="red" id="dsLowStock">–</strong></div>
+      <div class="mini-stat"><span>Products Pending Approval</span><strong class="orange" id="dsApproval">–</strong></div>
+      <div class="mini-stat"><span>Available Balance</span><strong class="green" id="dsBalance">–</strong></div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card large">
+        <div class="card-heading">
+          <div><h3>Recent Orders</h3><p>Latest customer purchases</p></div>
+          <button class="text-button" data-section="orders">View All →</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody id="dsRecentOrders"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-heading">
+          <div><h3>Top Products</h3><p>Best performing products</p></div>
+        </div>
+        <div class="top-products" id="dsTopProducts"></div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-heading">
+          <div><h3>Recent Activity</h3><p>Latest updates</p></div>
+        </div>
+        <div class="activity" id="dsActivity"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-heading">
+          <div><h3>Store Health</h3><p>Your seller performance</p></div>
+        </div>
+        <div class="health">
+          <div class="health-item"><div><span>Product Quality</span><strong id="hQuality">0%</strong></div><div class="progress"><div id="hQualityBar" style="width:0"></div></div></div>
+          <div class="health-item"><div><span>Order Fulfillment</span><strong id="hFulfil">0%</strong></div><div class="progress"><div id="hFulfilBar" style="width:0"></div></div></div>
+          <div class="health-item"><div><span>Customer Satisfaction</span><strong id="hSatisfaction">0%</strong></div><div class="progress"><div id="hSatisfactionBar" style="width:0"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section id="products" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">PRODUCT CATALOG</span>
+        <h1>My Products</h1>
+        <p>Manage your furniture listings.</p>
+      </div>
+      <button class="primary-button" data-action="new-product">+ Add Product</button>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-box">🔍 <input id="productSearch" placeholder="Search products..."></div>
+      <select id="productCategoryFilter">
+        <option value="">All Categories</option>
+        <option>Sofa</option><option>Chair</option><option>Table</option><option>Bed</option><option>Dining</option><option>Lighting</option><option>Decor</option>
+      </select>
+      <select id="productStatusFilter">
+        <option value="">All Status</option>
+        <option value="approved">Active</option>
+        <option value="pending">Pending</option>
+        <option value="rejected">Rejected</option>
+        <option value="out">Out of Stock</option>
+      </select>
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+  </section>
+
+  <!-- ADD / EDIT PRODUCT -->
+  <section id="addProduct" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow" id="formEyebrow">PRODUCT LISTING</span>
+        <h1 id="formTitle">Add New Furniture</h1>
+        <p>Add complete product information for customers.</p>
+      </div>
+    </div>
+
+    <form id="productForm" class="product-form">
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Basic Information</h3><p>Tell customers about your furniture.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Product Name *</label>
+            <input type="text" id="pName" placeholder="Example: Modern Boucle Sofa" required minlength="2">
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="pCategory" required>
+              <option value="">Select category</option>
+              <option>Sofa</option><option>Chair</option><option>Table</option><option>Bed</option><option>Dining</option><option>Wardrobe</option><option>Lighting</option><option>Decor</option><option>Outdoor Furniture</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Product Type</label>
+            <select id="pType"><option>New</option><option>Handmade</option><option>Customizable</option><option>Imported</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Short Description *</label>
+            <input type="text" id="pShort" placeholder="Short description visible on product cards" required>
+          </div>
+          <div class="form-group full">
+            <label>Detailed Description *</label>
+            <textarea rows="6" id="pDescription" placeholder="Describe materials, design, comfort, usage and other important details..." required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Product Images</h3><p>Add clear photos of your furniture.</p></div></div>
+        <label for="productImages" class="image-upload">
+          <div class="upload-icon">📷</div>
+          <strong>Click to upload product images</strong>
+          <span>JPG, JPEG or PNG · Maximum 5 images</span>
+        </label>
+        <input type="file" id="productImages" accept="image/png,image/jpeg,image/webp" multiple hidden>
+        <div id="imagePreview" class="image-preview"></div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Pricing & Tax</h3><p>Set your product pricing.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Selling Price (₹) *</label><input type="number" id="pPrice" placeholder="42999" min="1" step="0.01" required></div>
+          <div class="form-group"><label>MRP (₹)</label><input type="number" id="pMrp" placeholder="49999" min="1" step="0.01"></div>
+          <div class="form-group">
+            <label>GST (%)</label>
+            <select id="pGst"><option value="5">5%</option><option value="12" selected>12%</option><option value="18">18%</option></select>
+          </div>
+          <div class="form-group"><label>Discount (%)</label><input type="number" id="pDiscount" placeholder="10" min="0" max="90"></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Dimensions & Weight</h3><p>Help customers understand product size.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Length</label><div class="input-unit"><input type="number" id="pLength" placeholder="210" min="0"><span>cm</span></div></div>
+          <div class="form-group"><label>Width</label><div class="input-unit"><input type="number" id="pWidth" placeholder="90" min="0"><span>cm</span></div></div>
+          <div class="form-group"><label>Height</label><div class="input-unit"><input type="number" id="pHeight" placeholder="85" min="0"><span>cm</span></div></div>
+          <div class="form-group"><label>Weight</label><div class="input-unit"><input type="number" id="pWeight" placeholder="45" min="0"><span>kg</span></div></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Material & Features</h3><p>Provide specifications for customers.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Primary Material</label>
+            <select id="pMaterial"><option>Solid Wood</option><option>Engineered Wood</option><option>Metal</option><option>Marble</option><option>Fabric</option><option>Leather</option><option>Glass</option></select>
+          </div>
+          <div class="form-group"><label>Colour</label><input type="text" id="pColor" placeholder="Cream Beige"></div>
+          <div class="form-group"><label>Finish</label><input type="text" id="pFinish" placeholder="Matte / Natural / Gloss"></div>
+          <div class="form-group">
+            <label>Seating Capacity</label>
+            <select id="pSeating"><option>Not Applicable</option><option>1 Seater</option><option>2 Seater</option><option>3 Seater</option><option>4 Seater</option><option>6 Seater</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Key Features</label>
+            <textarea rows="4" id="pFeatures" placeholder="Example: Stain resistant fabric, removable cushions, solid wood frame..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Inventory</h3><p>Manage stock information.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label>SKU *</label><input type="text" id="pSku" placeholder="UL-SOF-001" required></div>
+          <div class="form-group"><label>Available Quantity *</label><input type="number" id="pStock" placeholder="50" min="0" required></div>
+          <div class="form-group"><label>Low Stock Alert</label><input type="number" id="pLowStock" placeholder="5" min="0"></div>
+          <div class="form-group"><label>Warehouse Location</label><input type="text" id="pWarehouse" placeholder="Ahmedabad Warehouse"></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Shipping & Delivery</h3><p>Tell customers how their furniture will be delivered.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Delivery Time</label>
+            <select id="pDelivery"><option>3 - 5 Business Days</option><option>5 - 7 Business Days</option><option>7 - 14 Business Days</option><option>14 - 21 Business Days</option></select>
+          </div>
+          <div class="form-group"><label>Shipping Charge (₹)</label><input type="number" id="pShipping" placeholder="999" min="0"></div>
+          <div class="form-group">
+            <label>Assembly Available</label>
+            <select id="pAssembly"><option>Yes - Free</option><option>Yes - Paid</option><option>No</option></select>
+          </div>
+          <div class="form-group"><label>Installation Charge (₹)</label><input type="number" id="pInstall" placeholder="0" min="0"></div>
+          <div class="form-group full"><label>Delivery Areas</label><input type="text" id="pAreas" placeholder="Example: Ahmedabad, Mumbai, Delhi, Bangalore"></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-heading"><div><h3>Returns & Warranty</h3><p>Define your customer policies.</p></div></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Return Period</label>
+            <select id="pReturn"><option>No Returns</option><option>7 Days</option><option>10 Days</option><option>15 Days</option><option>30 Days</option></select>
+          </div>
+          <div class="form-group">
+            <label>Warranty</label>
+            <select id="pWarranty"><option>No Warranty</option><option>6 Months</option><option>1 Year</option><option>2 Years</option><option>5 Years</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Return Policy Details</label>
+            <textarea rows="4" id="pPolicy" placeholder="Explain return conditions, damaged product policy, cancellation rules..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-submit">
+        <button type="button" class="secondary-button" data-action="save-draft">Save Draft</button>
+        <button type="submit" class="primary-button" id="productSubmit">Submit for Approval</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ORDERS -->
+  <section id="orders" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">SALES</span>
+        <h1>Orders</h1>
+        <p>Manage customer purchases and delivery.</p>
+      </div>
+      <button class="secondary-button" data-action="export-orders">↓ Export CSV</button>
+    </div>
+
+    <div class="stats">
+      <div class="mini-stat"><span>New Orders</span><strong class="orange" id="osNew">–</strong></div>
+      <div class="mini-stat"><span>Processing</span><strong id="osProcessing">–</strong></div>
+      <div class="mini-stat"><span>Shipped</span><strong id="osShipped">–</strong></div>
+      <div class="mini-stat"><span>Delivered</span><strong class="green" id="osDelivered">–</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Amount</th><th>Payment</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- INVENTORY -->
+  <section id="inventory" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">STOCK MANAGEMENT</span>
+        <h1>Inventory</h1>
+        <p>Keep track of your furniture stock.</p>
+      </div>
+    </div>
+
+    <div class="inventory-grid">
+      <div class="inventory-card"><span>Total Inventory</span><strong id="ivTotal">–</strong><small>Units</small></div>
+      <div class="inventory-card"><span>In Stock</span><strong class="green" id="ivIn">–</strong><small id="ivInNote"></small></div>
+      <div class="inventory-card"><span>Low Stock</span><strong class="orange" id="ivLow">–</strong><small>Needs attention</small></div>
+      <div class="inventory-card"><span>Out of Stock</span><strong class="red" id="ivOut">–</strong><small>Restock required</small></div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Product</th><th>SKU</th><th>Available</th><th>Low Stock Level</th><th>Warehouse</th><th>Stock Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOMERS -->
+  <section id="customers" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">CUSTOMER MANAGEMENT</span>
+        <h1>Customers</h1>
+        <p>Customers who purchased your products.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Customer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Last Order</th></tr></thead>
+          <tbody id="customersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENTS -->
+  <section id="payments" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">FINANCIALS</span>
+        <h1>Payments & Payouts</h1>
+        <p>Track your earnings and Roomora AI payouts.</p>
+      </div>
+      <button class="primary-button" data-action="request-payout">Request Payout</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-icon">₹</div><div><span>Total Sales</span><strong id="pyTotal">–</strong><small>All time</small></div></div>
+      <div class="stat"><div class="stat-icon">📈</div><div><span>This Month</span><strong id="pyMonth">–</strong><small>Delivered orders</small></div></div>
+      <div class="stat"><div class="stat-icon">💰</div><div><span>Available Balance</span><strong id="pyAvailable">–</strong><small>Ready for payout</small></div></div>
+      <div class="stat"><div class="stat-icon">⏳</div><div><span>Pending Payout</span><strong id="pyPending">–</strong><small>Processing</small></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-heading"><div><h3>Payout History</h3><p>Your recent settlements</p></div></div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Payout ID</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody id="payoutsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section id="reviews" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">CUSTOMER FEEDBACK</span>
+        <h1>Reviews</h1>
+        <p>See what customers are saying about your products.</p>
+      </div>
+    </div>
+
+    <div class="review-summary">
+      <div class="rating-number">
+        <strong id="rvAverage">–</strong>
+        <div class="stars" id="rvStars"></div>
+        <small id="rvCount"></small>
+      </div>
+      <div class="rating-bars" id="rvBars"></div>
+    </div>
+
+    <div class="review-list" id="rvList"></div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section id="analytics" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">BUSINESS ANALYTICS</span>
+        <h1>Analytics</h1>
+        <p>Understand your store performance.</p>
+      </div>
+    </div>
+
+    <div class="analytics-grid">
+      <div class="card">
+        <h3>Monthly Sales</h3>
+        <p>Revenue performance</p>
+        <div class="chart" id="anChart"></div>
+        <div class="chart-labels" id="anLabels"></div>
+      </div>
+
+      <div class="card">
+        <h3>Product Performance</h3>
+        <p>Sales by category</p>
+        <div class="performance" id="anCategories"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="section">
+    <div class="heading">
+      <div>
+        <span class="eyebrow">SELLER SETTINGS</span>
+        <h1>Settings</h1>
+        <p>Manage your seller account and store.</p>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <form class="form-card" id="storeForm">
+        <h3>Store Information</h3>
+        <div class="form-group"><label>Store Name</label><input id="stName" required minlength="2"></div>
+        <div class="form-group"><label>Business Email</label><input type="email" id="stEmail"></div>
+        <div class="form-group"><label>Mobile Number</label><input id="stMobile" required minlength="10"></div>
+        <div class="form-group"><label>GST Number</label><input id="stGst"></div>
+        <button class="primary-button" type="submit">Save Changes</button>
+      </form>
+
+      <div class="form-card">
+        <h3>Notifications</h3>
+        <div class="toggle-setting">
+          <div><strong>New Order Alerts</strong><small>Get notified when customers place orders.</small></div>
+          <label class="switch"><input type="checkbox" data-pref="new_order_alerts" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-setting">
+          <div><strong>Low Stock Alerts</strong><small>Receive notifications when inventory is low.</small></div>
+          <label class="switch"><input type="checkbox" data-pref="low_stock_alerts" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-setting">
+          <div><strong>Customer Reviews</strong><small>Get notified about new reviews.</small></div>
+          <label class="switch"><input type="checkbox" data-pref="customer_reviews" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- RESTOCK MODAL -->
+<div class="panel-modal" id="restockModal">
+  <div class="panel-modal-content">
+    <div class="panel-modal-header"><h2 id="restockTitle">Restock</h2><button data-close-modal aria-label="Close">✕</button></div>
+    <form id="restockForm">
+      <div class="form-group"><label>New stock quantity</label><input type="number" id="restockQty" min="0" required></div>
+      <button class="primary-button" type="submit">Update Stock</button>
+    </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script type="module" src="js/pages/seller.js"></script>
 </body>
 </html>

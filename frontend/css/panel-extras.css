@@ -1,0 +1,190 @@
+/* ============================================================
+   SHARED ADDITIONS FOR THE LIVE (API-CONNECTED) PANELS
+   Small pieces the old mock never needed: a modal, a notification
+   list, inline selects and empty states. Used by seller, designer, admin.
+   ============================================================ */
+.panel-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(63, 66, 50, .45);
+}
+
+.panel-modal.show {
+    display: flex;
+}
+
+.panel-modal-content {
+    width: 100%;
+    max-width: 460px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 22px;
+    background: #fffdf8;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(74, 73, 53, .2);
+    font-size: 10px;
+}
+
+.panel-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.panel-modal-header h2 {
+    font-family: "Manrope", sans-serif;
+    font-size: 17px;
+    color: #3f4232;
+}
+
+.panel-modal-header button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: #e9e8d6;
+}
+
+.panel-modal .form-group {
+    margin-bottom: 14px;
+}
+
+.panel-modal .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.panel-modal .form-group input,
+.panel-modal .form-group select,
+.panel-modal .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd8c7;
+    border-radius: 11px;
+    background: #fdfbf5;
+    font-size: 10px;
+    outline: none;
+}
+
+.panel-modal .form-group input:focus,
+.panel-modal .form-group select:focus,
+.panel-modal .form-group textarea:focus {
+    border-color: #898d60;
+}
+
+.panel-modal .primary-button {
+    width: 100%;
+}
+
+.notice-item {
+    display: flex;
+    gap: 11px;
+    padding: 11px 6px;
+    border-bottom: 1px solid #ebe7db;
+}
+
+.notice-item.unread {
+    background: #f4f1e5;
+    border-radius: 10px;
+}
+
+.notice-item p {
+    margin-top: 2px;
+    color: #6c6a5c;
+}
+
+.notice-item small {
+    color: #929080;
+    font-size: 8px;
+}
+
+.notice-icon {
+    font-size: 17px;
+}
+
+.row-select {
+    padding: 6px 8px;
+    border: 1px solid #ddd8c7;
+    border-radius: 8px;
+    background: #fdfbf5;
+    font-size: 9px;
+}
+
+.inline-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.form-message {
+    min-height: 14px;
+    margin-top: 10px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #a87569;
+}
+
+.preview-thumb {
+    position: relative;
+}
+
+.preview-thumb button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(63, 66, 50, .75);
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+}
+
+/* the designer stylesheet has no "cancelled" pill; match the seller panel's */
+.status.cancelled,
+.status.declined {
+    background: #efe0da;
+    color: #a87569;
+}
+
+.status.paused {
+    background: #e9e8d6;
+    color: #6c6a5c;
+}
+
+.card-delete {
+    margin-top: 8px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #a87569;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.card-delete:hover {
+    text-decoration: underline;
+}
+
+.detail-list p {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ebe7db;
+}
+
+.detail-list span {
+    color: #929080;
+}

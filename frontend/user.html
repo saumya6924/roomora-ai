@@ -3,59 +3,523 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roomora AI - Welcome to Roomora AI</title>
+  <title>Roomora AI</title>
   <link rel="icon" href="assets/img/logo.png">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/user.css">
 </head>
-<body data-roles="user,seller,designer,admin">
-  <div class="sidebar-overlay" id="sidebarOverlay" data-action="close-sidebar"></div>
-  <div class="layout">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-logo"><img src="assets/img/logo.png" alt="Roomora AI logo"></div>
-        <div><h2>Roomora AI</h2><span>CUSTOMER</span></div>
-      </div>
-      <div class="sidebar-profile">
-        <div class="avatar" data-user-initials></div>
-        <div><strong data-user-name></strong><small data-user-role></small></div>
-      </div>
-      <nav class="sidebar-nav">
-        <button class="nav-item" data-section="overview"><span>▦</span> Overview</button>
-      </nav>
-      <div class="sidebar-bottom">
-        <button class="nav-item" data-action="logout"><span>↪</span> Logout</button>
-      </div>
-    </aside>
 
-    <div class="main">
-      <header class="topbar">
-        <button class="mobile-menu" data-action="open-sidebar" aria-label="Open menu">☰</button>
-        <div class="topbar-actions">
-          <div class="top-profile">
-            <div class="avatar" data-user-initials></div>
-            <div><strong data-user-name></strong><small data-user-role></small></div>
-          </div>
-        </div>
-      </header>
+<body>
 
-      <section id="overview" class="section">
-        <div class="heading">
-          <div>
-            <span class="eyebrow">CUSTOMER</span>
-            <h1>Welcome to Roomora AI</h1>
-            <p>Signed in as <strong data-user-name></strong>.</p>
-          </div>
-        </div>
-        <div class="card">
-          <p>This page is being rebuilt on the new backend and will appear in a later phase.</p>
-        </div>
-      </section>
+<!-- SPLASH SCREEN -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-content">
+    <div class="splash-logo"><img src="assets/img/logo.png" alt="Roomora AI Logo"></div>
+    <h1>Roomora AI</h1>
+    <p>Reimagine. Redesign. Live beautifully.</p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="topbar">
+  <a href="#home" class="brand">
+    <div class="logo-mark"><img src="assets/img/logo.png" alt="Roomora AI Logo"></div>
+    <span>Roomora AI</span>
+  </a>
+
+  <nav class="top-navigation">
+    <a href="#home" class="active">Home</a>
+    <a href="#inspire">Inspire</a>
+    <a href="#profile">Profile</a>
+  </nav>
+
+  <div class="header-actions">
+    <button class="icon-button" data-action="open-settings" title="Settings">⚙️</button>
+    <button class="icon-button" data-action="open-cart" title="Cart">
+      🛒
+      <span id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- HOME -->
+<section id="home" class="hero">
+  <div class="hero-container">
+    <div>
+      <span class="eyebrow">AI INTERIOR STUDIO</span>
+      <h1>Your space.<br><span>Your vision.</span></h1>
+      <p>
+        Upload a room and let Roomora AI transform your ideas into beautiful interior concepts.
+        Shop furniture and connect with professional designers — all in one place.
+      </p>
+      <div class="chips">
+        <button class="chip" data-action="select-space" data-space="Home">🏠 Home</button>
+        <button class="chip" data-action="select-space" data-space="Cafe">☕ Cafe</button>
+        <button class="chip" data-action="select-space" data-space="Hotel">🏨 Hotel</button>
+        <button class="chip" data-action="select-space" data-space="Office">🏢 Office</button>
+        <button class="chip" data-action="select-space" data-space="College">🎓 College</button>
+      </div>
+    </div>
+    <div class="hero-visual">🛋️</div>
+  </div>
+</section>
+
+<!-- UPLOAD ROOM -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">STEP 01</span>
+      <h2>Upload your space</h2>
+      <p class="muted">Upload a photo of your room, house, cafe, hotel or any space.</p>
+    </div>
+    <div class="upload-card">
+      <div class="upload-area">
+        <div class="upload-area-icon">🖼️</div>
+        <h3>Upload your room image</h3>
+        <p class="muted">JPG, JPEG or PNG</p>
+        <label for="roomImage" class="upload-button">Upload / Choose Image</label>
+        <input type="file" id="roomImage" accept="image/*">
+        <img id="roomPreview" class="preview-image" alt="Room Preview">
+      </div>
     </div>
   </div>
+</section>
 
-  <script src="config.js"></script>
-  <script type="module" src="js/pages/stub.js"></script>
+<!-- QUICK DESIGN SUGGESTIONS -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">STEP 02</span>
+      <h2>Choose a style</h2>
+      <p class="muted">Start with one of our popular design directions.</p>
+    </div>
+    <div class="chips">
+      <button class="chip" data-action="set-prompt" data-prompt="Create a warm beige modern living room with a cream sofa, wooden furniture and warm lighting.">🤎 Warm Beige</button>
+      <button class="chip" data-action="set-prompt" data-prompt="Create a modern sage green living room with cream furniture, plants and natural wood.">🌿 Sage Green</button>
+      <button class="chip" data-action="set-prompt" data-prompt="Create a luxury living room with neutral colors, marble furniture and elegant lighting.">✨ Luxury</button>
+      <button class="chip" data-action="set-prompt" data-prompt="Create a minimalist Scandinavian room with white walls, oak furniture and soft fabrics.">🪵 Scandinavian</button>
+      <button class="chip" data-action="set-prompt" data-prompt="Create a cozy cafe with wooden furniture, plants, warm pendant lights and earthy colors.">☕ Cozy Cafe</button>
+      <button class="chip" data-action="set-prompt" data-prompt="Create a premium boutique hotel room with elegant furniture and layered lighting.">🏨 Hotel Luxury</button>
+    </div>
+  </div>
+</section>
+
+<!-- AI PROMPT -->
+<section class="section">
+  <div class="container">
+    <div class="prompt-card">
+      <span class="eyebrow">STEP 03</span>
+      <h2>Describe your dream design</h2>
+      <p class="muted">Tell Roomora AI exactly what you want to see.</p>
+
+      <textarea id="designPrompt" placeholder="Example: Redesign my living room with a beige wall, curved cream sofa, wooden coffee table, indoor plants and warm lights. Make it modern and luxurious."></textarea>
+
+      <div class="prompt-bottom">
+        <select id="spaceType" class="space-select">
+          <option>Home</option>
+          <option>Cafe</option>
+          <option>Hotel</option>
+          <option>Office</option>
+          <option>College</option>
+          <option>Restaurant</option>
+          <option>Shop</option>
+        </select>
+        <button class="primary-button" style="max-width:260px" data-action="generate">✨ Generate AI Design</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI RESULT -->
+<section id="aiResultSection" class="section" style="display:none">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">AI RESULT</span>
+      <h2>Your redesigned space</h2>
+    </div>
+
+    <div class="upload-card">
+      <div id="aiResult" style="min-height:300px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:20px;background:linear-gradient(135deg,#ded2c2,#9c8873);color:white;padding:30px;">
+        <div>
+          <div style="font-size:60px;margin-bottom:15px;">✨</div>
+          <h2>Your AI design is being prepared</h2>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+        <button class="primary-button" data-action="save-design">❤️ Save Design</button>
+        <button class="chip" data-action="scroll-furniture">🛋️ Shop This Look</button>
+        <button class="chip" data-action="scroll-designers">🎨 Find Designer</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FURNITURE -->
+<section id="furniture" class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">SHOP THE LOOK</span>
+      <h2>Furniture for your space</h2>
+      <p class="muted">Find furniture that matches your design.</p>
+    </div>
+    <div id="productGrid" class="product-grid"></div>
+  </div>
+</section>
+
+<!-- DESIGNERS -->
+<section id="designers" class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">PROFESSIONAL HELP</span>
+      <h2>Book an interior designer</h2>
+      <p class="muted">Work with professional designers according to your project.</p>
+    </div>
+    <div id="designerGrid" class="designer-grid"></div>
+  </div>
+</section>
+
+<!-- INSPIRE -->
+<section id="inspire" class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">INSPIRE</span>
+      <h2>Explore beautiful spaces</h2>
+      <p class="muted">Get inspiration for your next project.</p>
+    </div>
+
+    <div class="inspiration-grid">
+      <div class="inspiration-card">
+        <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=80" alt="Modern Home">
+        <div class="inspiration-overlay"><strong>Modern Home</strong><br><small>Neutral · Warm · Minimal</small></div>
+      </div>
+      <div class="inspiration-card">
+        <img src="assets/img/inspiration/cafe-design.jpg" alt="Cafe Design">
+        <div class="inspiration-overlay"><strong>Modern Cafe</strong><br><small>Wood · Plants · Warm Lighting</small></div>
+      </div>
+      <div class="inspiration-card">
+        <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1000&q=80" alt="Hotel Design">
+        <div class="inspiration-overlay"><strong>Boutique Hotel</strong><br><small>Luxury · Elegant · Premium</small></div>
+      </div>
+      <div class="inspiration-card">
+        <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=80" alt="Office Design">
+        <div class="inspiration-overlay"><strong>Creative Office</strong><br><small>Modern · Functional · Bright</small></div>
+      </div>
+      <div class="inspiration-card">
+        <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=80" alt="Luxury Interior">
+        <div class="inspiration-overlay"><strong>Luxury Interior</strong><br><small>Marble · Curves · Soft Tones</small></div>
+      </div>
+      <div class="inspiration-card">
+        <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80" alt="Minimal Interior">
+        <div class="inspiration-overlay"><strong>Minimal Interior</strong><br><small>Clean · Simple · Natural</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow">PROFILE</span>
+      <h2>My Roomora Account</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <!-- PROFILE INFORMATION -->
+      <div class="upload-card">
+        <div style="display:flex;gap:15px;align-items:center;">
+          <div class="designer-avatar" id="profileAvatar" style="width:70px;height:70px;font-size:22px;"></div>
+          <div>
+            <h3 id="profileName"></h3>
+            <p class="muted" id="profileEmail"></p>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #e4ddd3;margin:22px 0;">
+
+        <p><strong>Mobile:</strong> <span id="profileMobile"></span></p>
+        <p style="margin-top:10px"><strong>Location:</strong> <span id="profileLocation"></span></p>
+        <p style="margin-top:10px"><strong>Member Since:</strong> <span id="profileSince"></span></p>
+
+        <button class="chip" style="margin-top:20px" data-action="edit-profile">Edit Profile</button>
+      </div>
+
+      <!-- SAVED DESIGNS -->
+      <div class="upload-card">
+        <h3>Saved Designs</h3>
+        <p class="muted">Your favourite AI designs.</p>
+        <div id="savedDesigns"></div>
+      </div>
+
+    </div>
+
+    <!-- ORDER HISTORY -->
+    <div class="upload-card" style="margin-top:20px">
+      <div class="section-title">
+        <h3>Order History</h3>
+        <p class="muted">Furniture and designer bookings.</p>
+      </div>
+      <div id="orderHistory"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- MOBILE NAVIGATION -->
+<nav class="bottom-navigation">
+  <a href="#home">🏠<br>Home</a>
+  <a href="#inspire">✨<br>Inspire</a>
+  <a href="#profile">👤<br>Profile</a>
+</nav>
+
+<!-- CART MODAL -->
+<div id="cartModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Furniture Cart</h2>
+      <button data-close-modal>✕</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cartTotal">₹0</strong>
+    </div>
+    <button class="primary-button" data-action="open-checkout">Proceed to Furniture Checkout</button>
+  </div>
+</div>
+
+<!-- DESIGNER BOOKING MODAL -->
+<div id="designerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Book Designer</h2>
+      <button data-close-modal>✕</button>
+    </div>
+
+    <form id="designerBookingForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="bookingName" type="text" required>
+      </div>
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input id="bookingMobile" type="tel" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="bookingEmail" type="email" required>
+      </div>
+      <div class="form-group">
+        <label>Project Type</label>
+        <select id="bookingProject">
+          <option>Home</option>
+          <option>Cafe</option>
+          <option>Hotel</option>
+          <option>Office</option>
+          <option>Restaurant</option>
+          <option>College</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input id="bookingDate" type="date" required>
+        </div>
+        <div class="form-group">
+          <label>Number of Days</label>
+          <input id="bookingDays" type="number" min="1" max="60" value="1" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Project Details</label>
+        <textarea id="bookingDetails" rows="4" placeholder="Describe what you need help with..."></textarea>
+      </div>
+
+      <button class="primary-button" type="submit">Send Designer Request</button>
+    </form>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button data-close-modal>✕</button>
+    </div>
+
+    <div class="settings-list">
+      <div class="setting-item" data-action="edit-profile" style="cursor:pointer">
+        <div><strong>Account Information</strong><p>Manage your name, email and mobile number.</p></div>
+        <span>→</span>
+      </div>
+
+      <div class="setting-item">
+        <div><strong>Notifications</strong><p>Manage order and designer notifications.</p></div>
+        <label class="switch"><input type="checkbox" data-pref="notifications" checked><span class="slider"></span></label>
+      </div>
+
+      <div class="setting-item">
+        <div><strong>Order Notifications</strong><p>Receive furniture delivery updates.</p></div>
+        <label class="switch"><input type="checkbox" data-pref="order_notifications" checked><span class="slider"></span></label>
+      </div>
+
+      <div class="setting-item">
+        <div><strong>Designer Updates</strong><p>Get notified when a designer accepts your request.</p></div>
+        <label class="switch"><input type="checkbox" data-pref="designer_updates" checked><span class="slider"></span></label>
+      </div>
+
+      <div class="setting-item" data-action="change-password" style="cursor:pointer">
+        <div><strong>Privacy & Security</strong><p>Password, security and privacy.</p></div>
+        <span>→</span>
+      </div>
+
+      <div class="setting-item" data-action="show-help" style="cursor:pointer">
+        <div><strong>Help & Support</strong><p>Contact Roomora AI support.</p></div>
+        <span>→</span>
+      </div>
+
+      <div class="setting-item" data-action="show-terms" style="cursor:pointer">
+        <div><strong>Terms & Conditions</strong><p>Read Roomora AI policies.</p></div>
+        <span>→</span>
+      </div>
+
+      <div class="setting-item logout">
+        <div><strong>Logout</strong><p>Sign out of your account.</p></div>
+        <button class="logout-button" data-action="logout">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FURNITURE CHECKOUT MODAL -->
+<div id="checkoutModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Furniture Checkout</h2>
+      <button data-close-modal>✕</button>
+    </div>
+
+    <form id="checkoutForm">
+      <h3>Delivery Information</h3>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="coName" required>
+      </div>
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input id="coMobile" type="tel" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="coEmail" type="email" required>
+      </div>
+      <div class="form-group">
+        <label>House / Apartment</label>
+        <input id="coHouse" required placeholder="House number / Apartment">
+      </div>
+      <div class="form-group">
+        <label>Street Address</label>
+        <input id="coStreet" required>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>City</label>
+          <input id="coCity" required>
+        </div>
+        <div class="form-group">
+          <label>PIN Code</label>
+          <input id="coPin" required maxlength="6" inputmode="numeric" pattern="[0-9]{6}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select id="coPayment">
+          <option value="UPI">UPI</option>
+          <option value="Card">Credit / Debit Card</option>
+          <option value="Net Banking">Net Banking</option>
+          <option value="COD">Cash on Delivery</option>
+        </select>
+      </div>
+
+      <button class="primary-button" type="submit">Place Furniture Order</button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div id="profileModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit Profile</h2>
+      <button data-close-modal>✕</button>
+    </div>
+    <form id="profileForm">
+      <div class="form-group"><label>Full Name</label><input id="pfName" required minlength="2"></div>
+      <div class="form-group"><label>Email</label><input id="pfEmail" type="email" disabled></div>
+      <div class="form-group"><label>Mobile Number</label><input id="pfMobile" type="tel" required minlength="10"></div>
+      <div class="form-group"><label>Location</label><input id="pfLocation" placeholder="City, State"></div>
+      <button class="primary-button" type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="passwordModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Change Password</h2>
+      <button data-close-modal>✕</button>
+    </div>
+    <form id="passwordForm">
+      <div class="form-group"><label>Current Password</label><input id="pwCurrent" type="password" required autocomplete="current-password"></div>
+      <div class="form-group"><label>New Password</label><input id="pwNew" type="password" required autocomplete="new-password" placeholder="8+ characters, a capital, a number, a symbol"></div>
+      <div class="form-group"><label>Confirm New Password</label><input id="pwConfirm" type="password" required autocomplete="new-password"></div>
+      <button class="primary-button" type="submit">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div id="reviewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="reviewHeading">Write a review</h2>
+      <button data-close-modal>✕</button>
+    </div>
+    <form id="reviewForm">
+      <div class="star-picker" id="starPicker">
+        <button type="button" data-star="1">★</button><button type="button" data-star="2">★</button><button type="button" data-star="3">★</button><button type="button" data-star="4">★</button><button type="button" data-star="5">★</button>
+      </div>
+      <div class="form-group"><label>Title</label><input id="rvTitle" maxlength="120" placeholder="Sum it up in a few words"></div>
+      <div class="form-group"><label>Your review</label><textarea id="rvBody" rows="4" placeholder="What did you like?"></textarea></div>
+      <button class="primary-button" type="submit">Submit Review</button>
+    </form>
+  </div>
+</div>
+
+<!-- INFO MODAL (help and terms) -->
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="infoTitle"></h2>
+      <button data-close-modal>✕</button>
+    </div>
+    <div class="info-text" id="infoBody"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script type="module" src="js/pages/user.js"></script>
+<script src="js/ai-editor.js"></script>
 </body>
 </html>
