@@ -29,6 +29,7 @@ from app.routers import (
     products,
     reviews,
     sellers,
+    studio,
     uploads,
 )
 
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
         earnings.router,
         sellers.router,
         uploads.router,
+        studio.router,
         ai.router,
         admin.router,
         files.router,

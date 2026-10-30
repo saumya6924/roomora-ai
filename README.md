@@ -10,9 +10,9 @@ and book interior designers; sellers, designers and an admin each get their own 
 | Database and file storage | Postgres + Storage | Supabase |
 | Room-photo redesign | Cloudflare Workers AI (free tier), behind a swappable adapter | Cloudflare |
 
-> **Status:** the backend core (auth, products, designers, bookings, orders, saved designs, admin, AI editor)
-> and the frontend design system with the real login are built. Panels and the remaining features are being
-> ported phase by phase. Cloud deployment waits for the new service accounts.
+> **Status:** the whole application runs locally against the real backend: login and signup, the customer
+> storefront (shop, cart, checkout, designer booking, saved designs, reviews, room-photo studio) and the seller,
+> designer and admin panels. Cloud deployment (Supabase, Railway, Cloudflare) is the remaining step.
 
 ## Layout
 
@@ -55,10 +55,25 @@ backend uses a local SQLite file; point `DATABASE_URL` at Supabase Postgres to u
 |---|---|---|
 | Admin | admin@roomora.com | Admin@1234 |
 | Seller | seller@roomora.com | Seller@1234 |
-| Customer | user@roomora.com | User@1234 |
+| Customer | user@roomora.com | User@1234 (also nancy@, arjun@, meera@, riya@, kabir@roomora.com) |
 | Designer | saumya@roomora.com | Designer@1234 |
 
 New customers can sign up with a Gmail address. Staff accounts can only be created by an admin.
+
+## Room photo studio
+
+Customers upload a photo of their room, describe the design in English, Hindi or Hinglish, and get a redesigned
+picture. Every edit is saved as a new version, so the original photo is never changed and any version can be
+continued from. Photos are private: they are only reachable through short-lived signed links.
+
+The image model sits behind one adapter (`backend/app/services/image_ai/`), chosen by `IMAGE_PROVIDER`:
+
+- `mock` (default without keys): tints the photo and stamps the prompt, so the whole flow works offline and in tests.
+- `cloudflare`: Cloudflare Workers AI `@cf/runwayml/stable-diffusion-v1-5-img2img`, which has a free daily allowance.
+  Set `CF_ACCOUNT_ID` and `CF_API_TOKEN` (a Workers AI API token) in `backend/.env`; `IMAGE_PROVIDER=auto` then uses it.
+
+Generation is rate limited (5 per minute per user) and capped per day (`STUDIO_DAILY_LIMIT`, default 20) to stay
+inside the free allowance.
 
 ## Tests and checks
 

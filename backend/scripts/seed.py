@@ -1,13 +1,14 @@
 """Fill the database with demo data.
 
-    python -m scripts.seed           add demo data to an empty database
-    python -m scripts.seed --reset   wipe every table first, then add demo data
+    python -m scripts.seed                 add demo data to an empty database
+    python -m scripts.seed --reset         wipe every table first, then add demo data
+    python -m scripts.seed --no-activity   accounts and catalogue only (no orders, bookings, reviews...)
 
 Demo logins (change or delete these before real use):
     admin@roomora.com    / Admin@1234
     seller@roomora.com   / Seller@1234
-    user@roomora.com     / User@1234
-    saumya@roomora.com   / Designer@1234   (and the other five designers)
+    user@roomora.com     / User@1234     (also nancy@, arjun@, meera@, riya@, kabir@roomora.com)
+    saumya@roomora.com   / Designer@1234 (and the other five designers)
 """
 
 import argparse
@@ -58,9 +59,50 @@ def make_user(db, name: str, email: str, password: str, role: Role) -> User:
     return user
 
 
+def seed_all(db, activity: bool = True) -> None:
+    """Accounts and catalogue, plus (by default) linked demo activity."""
+    make_user(db, "Roomora Admin", "admin@roomora.com", "Admin@1234", Role.ADMIN)
+    seller = make_user(db, "Urban Living", "seller@roomora.com", "Seller@1234", Role.SELLER)
+    db.add(SellerProfile(user_id=seller.id, store_name="Urban Living", business_email="seller@roomora.com"))
+    make_user(db, "Demo User", "user@roomora.com", "User@1234", Role.USER)
+
+    for name, price, category, image in PRODUCTS:
+        db.add(
+            Product(
+                seller_id=seller.id,
+                name=name,
+                category=category,
+                price=Decimal(price),
+                mrp=Decimal(round(price * 1.15)),
+                stock=25,
+                short_description=f"{name} for modern interiors",
+                image_url=image,
+                status=ProductStatus.APPROVED,
+            )
+        )
+
+    for name, email, price, speciality in DESIGNERS:
+        user = make_user(db, name, email, "Designer@1234", Role.DESIGNER)
+        db.add(
+            DesignerProfile(
+                user_id=user.id,
+                speciality=speciality,
+                price_per_day=Decimal(price),
+                status=DesignerStatus.APPROVED,
+            )
+        )
+    db.commit()
+
+    if activity:
+        from scripts.demo_activity import add_demo_activity
+
+        add_demo_activity(db)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reset", action="store_true", help="delete all existing data first")
+    parser.add_argument("--no-activity", action="store_true", help="skip orders, bookings, reviews and so on")
     args = parser.parse_args()
 
     with SessionLocal() as db:
@@ -68,41 +110,7 @@ def main() -> None:
             wipe(db)
         elif db.query(User).first():
             raise SystemExit("The database already has data. Run with --reset to start fresh.")
-
-        make_user(db, "Roomora Admin", "admin@roomora.com", "Admin@1234", Role.ADMIN)
-        seller = make_user(db, "Urban Living", "seller@roomora.com", "Seller@1234", Role.SELLER)
-        db.add(
-            SellerProfile(user_id=seller.id, store_name="Urban Living", business_email="seller@roomora.com")
-        )
-        make_user(db, "Demo User", "user@roomora.com", "User@1234", Role.USER)
-
-        for name, price, category, image in PRODUCTS:
-            db.add(
-                Product(
-                    seller_id=seller.id,
-                    name=name,
-                    category=category,
-                    price=Decimal(price),
-                    mrp=Decimal(round(price * 1.15)),
-                    stock=25,
-                    short_description=f"{name} for modern interiors",
-                    image_url=image,
-                    status=ProductStatus.APPROVED,
-                )
-            )
-
-        for name, email, price, speciality in DESIGNERS:
-            user = make_user(db, name, email, "Designer@1234", Role.DESIGNER)
-            db.add(
-                DesignerProfile(
-                    user_id=user.id,
-                    speciality=speciality,
-                    price_per_day=Decimal(price),
-                    status=DesignerStatus.APPROVED,
-                )
-            )
-
-        db.commit()
+        seed_all(db, activity=not args.no_activity)
     print("Done. Demo data added.")
 
 

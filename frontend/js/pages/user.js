@@ -27,6 +27,8 @@ const state = {
   selectedDesigner: null,
   reviewTarget: null,
   reviewStars: 0,
+  // The room photo studio: the uploaded photo, every version made from it, and the one being edited.
+  studio: { originalId: null, currentId: null, versions: [], busy: false },
 };
 
 /* ------------------------------------------------------------------ helpers */
@@ -518,6 +520,7 @@ async function loadSavedDesigns() {
       html`${designs.map(
         (d) => html`
           <div class="history-card" style="margin-top:12px">
+            ${d.design_image_id ? html`<img class="saved-thumb" data-saved-image="${d.design_image_id}" alt="" style="display:none">` : ""}
             <div class="history-head">
               <strong>${d.title}</strong>
               <span>${d.space_type} · ${formatDate(d.created_at)}</span>
@@ -532,6 +535,15 @@ async function loadSavedDesigns() {
       )}`,
     );
     box.designs = designs;
+    // Thumbnails come from the private studio storage, so each needs a fresh signed link.
+    qsa("[data-saved-image]", box).forEach(async (img) => {
+      try {
+        img.src = (await api(`/studio/images/${img.dataset.savedImage}`)).url;
+        img.style.display = "block";
+      } catch {
+        /* the image was deleted; the card simply has no thumbnail */
+      }
+    });
   } catch (error) {
     mount(box, emptyState("⚠️", error.message));
   }
@@ -548,6 +560,7 @@ async function saveDesign() {
         prompt,
         space_type: qs("#spaceType").value,
         requirements: window.RoomoraAI?.getRequirements() ?? {},
+        design_image_id: studio.currentId && studio.currentId !== studio.originalId ? studio.currentId : null,
       },
     });
     toast("Design saved to your Roomora profile.", "success");
@@ -557,12 +570,26 @@ async function saveDesign() {
   }
 }
 
-function useDesign(id) {
+async function useDesign(id) {
   const design = qs("#savedDesigns").designs?.find((d) => d.id === Number(id));
   if (!design) return;
   qs("#designPrompt").value = design.prompt;
   qs("#spaceType").value = design.space_type;
   window.RoomoraAI?.setRequirements(design.requirements);
+
+  if (design.design_image_id) {
+    try {
+      // Bring back the picture and its whole version history so editing can continue from it.
+      const family = await api(`/studio/images/${design.design_image_id}/versions`);
+      Object.assign(studio, { originalId: family[0].id, currentId: design.design_image_id, versions: family });
+      qs("#aiResultSection").style.display = "block";
+      renderStudio();
+      qs("#aiResultSection").scrollIntoView({ behavior: "smooth" });
+      return toast("Design loaded. Keep editing it, or ask the AI editor for changes.");
+    } catch (error) {
+      fail(error);
+    }
+  }
   qs("#designPrompt").scrollIntoView({ behavior: "smooth", block: "center" });
   toast("Design loaded. Keep editing it with the AI editor.");
 }
@@ -577,10 +604,16 @@ async function deleteDesign(id) {
   }
 }
 
-/* ------------------------------------------------------------------ AI design area */
-qs("#roomImage").addEventListener("change", (event) => {
+/* ------------------------------------------------------------------ AI design area (room photo studio) */
+const studio = state.studio;
+const versionOf = (id) => studio.versions.find((v) => v.id === id);
+const original = () => versionOf(studio.originalId);
+
+qs("#roomImage").addEventListener("change", async (event) => {
   const file = event.target.files[0];
   if (!file) return;
+
+  // The preview shows at once; the upload to the studio runs alongside it.
   const reader = new FileReader();
   reader.onload = (e) => {
     const preview = qs("#roomPreview");
@@ -588,24 +621,129 @@ qs("#roomImage").addEventListener("change", (event) => {
     preview.style.display = "block";
   };
   reader.readAsDataURL(file);
+
+  const form = new FormData();
+  form.append("file", file);
+  try {
+    const image = await api("/studio/upload", { method: "POST", form });
+    Object.assign(studio, { originalId: image.id, currentId: image.id, versions: [image] });
+    toast("Room photo uploaded. Describe your design and press Generate.", "success");
+  } catch (error) {
+    studio.originalId = null;
+    fail(error);
+  }
 });
 
-function generateDesign() {
+const resultBox = () => qs("#aiResult");
+
+function renderStudio() {
+  const box = resultBox();
+  const current = versionOf(studio.currentId);
+  box.classList.add("has-images");
+  mount(
+    box,
+    html`<div class="studio-grid">
+        <figure class="studio-figure"><img class="studio-img" data-image-id="${original().id}" src="${original().url}" alt="Your room"><figcaption>ORIGINAL</figcaption></figure>
+        ${current.id === original().id
+          ? html`<div class="studio-empty">Your redesign will appear here.<br>Describe your design above and press “Generate AI Design”.</div>`
+          : html`<figure class="studio-figure"><img class="studio-img" data-image-id="${current.id}" src="${current.url}" alt="AI redesign"><figcaption>AI REDESIGN · ${current.prompt.slice(0, 80)}</figcaption></figure>`}
+      </div>
+      <p class="studio-note">Each new design continues from the version you have selected below. Your original photo is never changed.</p>`,
+  );
+  mount(
+    qs("#versionStrip"),
+    html`${studio.versions.map(
+      (v, i) => html`<button class="version-thumb ${v.id === studio.currentId ? "on" : ""}" data-action="pick-version" data-id="${v.id}" title="${v.prompt || "Original photo"}">
+        <img class="studio-img" data-image-id="${v.id}" src="${v.url}" alt=""><span>${i === 0 ? "Original" : `Version ${i}`}</span>
+      </button>`,
+    )}`,
+  );
+}
+
+// Signed links expire after a few minutes: if a picture fails to load, ask for a fresh link once.
+document.addEventListener(
+  "error",
+  async (event) => {
+    const img = event.target;
+    if (!(img instanceof HTMLImageElement) || !img.classList.contains("studio-img") || img.dataset.retried) return;
+    img.dataset.retried = "1";
+    try {
+      const fresh = await api(`/studio/images/${img.dataset.imageId}`);
+      const known = versionOf(fresh.id);
+      if (known) known.url = fresh.url;
+      img.src = fresh.url;
+    } catch {
+      /* the picture stays broken; nothing more to do */
+    }
+  },
+  true,
+);
+
+async function generateDesign() {
   const prompt = qs("#designPrompt").value.trim();
   if (!prompt) return toast("Please describe your design first.", "error");
+  if (studio.busy) return;
 
   const section = qs("#aiResultSection");
   section.style.display = "block";
   section.scrollIntoView({ behavior: "smooth" });
-  mount(
-    qs("#aiResult"),
-    html`<div>
-      <div style="font-size:60px;margin-bottom:15px;">✨</div>
-      <h2>AI Design Ready</h2>
-      <p style="margin-top:10px">Your requested design:</p>
-      <p style="margin-top:8px;font-style:italic;">"${prompt}"</p>
-    </div>`,
-  );
+
+  if (!studio.originalId) {
+    // No room photo yet: keep showing the written brief, and say how to get a picture.
+    resultBox().classList.remove("has-images");
+    mount(
+      resultBox(),
+      html`<div>
+        <div style="font-size:60px;margin-bottom:15px;">✨</div>
+        <h2>Your design brief</h2>
+        <p style="margin-top:8px;font-style:italic;">"${prompt}"</p>
+        <p style="margin-top:16px;font-size:12px;opacity:.85">Upload a photo of your room in Step 01 to see Roomora AI redesign it.</p>
+      </div>`,
+    );
+    return;
+  }
+
+  const button = qs('[data-action="generate"]');
+  const done = setBusy(button, "Designing…");
+  studio.busy = true;
+  mount(resultBox(), html`<div class="studio-busy"><span class="spinner"></span> Roomora AI is redesigning your room… this can take up to a minute.</div>`);
+  resultBox().classList.add("has-images");
+  try {
+    const version = await api("/studio/generate", {
+      method: "POST",
+      body: { source_id: studio.currentId, prompt },
+    });
+    studio.versions.push(version);
+    studio.currentId = version.id;
+    renderStudio();
+  } catch (error) {
+    fail(error);
+    renderStudio();
+  } finally {
+    studio.busy = false;
+    done();
+  }
+}
+
+function pickVersion(id) {
+  if (!versionOf(Number(id))) return;
+  studio.currentId = Number(id);
+  renderStudio();
+}
+
+async function downloadDesign() {
+  const current = versionOf(studio.currentId);
+  if (!current || current.id === studio.originalId) return toast("Generate a design first, then download it.", "error");
+  try {
+    const fresh = await api(`/studio/images/${current.id}`);
+    const blob = await (await fetch(fresh.url)).blob();
+    const link = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `roomora-design-${current.id}.png` });
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch {
+    window.open(current.url, "_blank");
+  }
 }
 
 /* ------------------------------------------------------------------ one click handler for every data-action */
@@ -638,6 +776,8 @@ const actions = {
     qs("#designPrompt").focus();
   },
   generate: generateDesign,
+  "pick-version": (el) => pickVersion(el.dataset.id),
+  "download-design": downloadDesign,
   "save-design": saveDesign,
   "scroll-furniture": () => scrollTo("furniture"),
   "scroll-designers": () => scrollTo("designers"),
