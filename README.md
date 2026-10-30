@@ -82,7 +82,7 @@ continued from. Photos are private: they are only reachable through short-lived 
 The image model sits behind one adapter (`backend/app/services/image_ai/`), chosen by `IMAGE_PROVIDER`:
 
 - `mock` (default without keys): tints the photo and stamps the prompt, so the whole flow works offline and in tests.
-- `cloudflare`: Cloudflare Workers AI `@cf/runwayml/stable-diffusion-v1-5-img2img`, which has a free daily allowance.
+- `cloudflare`: Cloudflare Workers AI `@cf/black-forest-labs/flux-2-klein-4b` (image editing), which has a free daily allowance.
   Set `CF_ACCOUNT_ID` and `CF_API_TOKEN` (a Workers AI API token) in `backend/.env`; `IMAGE_PROVIDER=auto` then uses it.
 
 Generation is rate limited (5 per minute per user) and capped per day (`STUDIO_DAILY_LIMIT`, default 20) to stay

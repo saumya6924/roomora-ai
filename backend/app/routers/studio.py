@@ -4,10 +4,12 @@ The original is never modified. Every edit is a new row that points at the versi
 Photos live in the PRIVATE bucket and are only reachable through short-lived signed URLs.
 """
 
+import io
 import uuid
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -75,6 +77,19 @@ def to_english(prompt: str) -> str:
     return result["prompt"] if result["changes"] else prompt
 
 
+def as_png(data: bytes) -> bytes:
+    """Whatever the image model sent back must really be a picture; store it as PNG."""
+    try:
+        with Image.open(io.BytesIO(data)) as picture:
+            out = io.BytesIO()
+            picture.convert("RGB").save(out, "PNG")
+            return out.getvalue()
+    except (UnidentifiedImageError, OSError):
+        raise ImageProviderError(
+            "The image service did not return a usable picture. Please try again."
+        ) from None
+
+
 def store(user: User, data: bytes, ext: str, content_type: str) -> str:
     path = f"{user.id}/{uuid.uuid4().hex}.{ext}"
     try:
@@ -131,7 +146,7 @@ def generate(
 
     try:
         original = get_storage().get(settings.private_bucket, source.storage_path)
-        picture = get_provider().edit(original, to_english(data.prompt), data.strength)
+        picture = as_png(get_provider().edit(original, to_english(data.prompt), data.strength))
     except ImageProviderError as error:
         raise HTTPException(status_code=502, detail=str(error)) from None
     except StorageError:

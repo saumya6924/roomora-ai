@@ -171,23 +171,61 @@ def test_cloudflare_provider_builds_the_request(monkeypatch):
         def json(self):
             raise ValueError("not json")
 
-    def fake_post(url, json, headers, timeout):
-        sent.update(url=url, json=json, headers=headers)
+    def fake_post(url, data, files, headers, timeout):
+        sent.update(url=url, data=data, files=files, headers=headers)
         return Reply()
 
     monkeypatch.setattr(cloudflare.httpx, "post", fake_post)
-    assert cloudflare.CloudflareProvider().edit(room_photo(), "green walls", 0.7) == b"PNGDATA"
-    assert sent["url"].endswith("/accounts/acct123/ai/run/@cf/runwayml/stable-diffusion-v1-5-img2img")
+    big_photo = io.BytesIO()
+    Image.new("RGB", (1600, 1200), (180, 170, 150)).save(big_photo, "PNG")
+    assert cloudflare.CloudflareProvider().edit(big_photo.getvalue(), "green walls.", 0.7) == b"PNGDATA"
+
+    assert sent["url"].endswith("/accounts/acct123/ai/run/@cf/black-forest-labs/flux-2-klein-4b")
     assert sent["headers"]["Authorization"] == "Bearer tok"
-    assert (
-        sent["json"]["prompt"] == "green walls"
-        and sent["json"]["strength"] == 0.7
-        and sent["json"]["image_b64"]
-    )
+    assert "green walls" in sent["data"]["prompt"] and "Keep the same room layout" in sent["data"]["prompt"]
+    assert "walls.." not in sent["data"]["prompt"]  # no doubled full stop
+    assert sent["data"]["width"] % 16 == 0 and sent["data"]["height"] % 16 == 0
+    assert max(sent["data"]["width"], sent["data"]["height"]) == 768  # aspect kept: 1600x1200 -> 768x576
+    sent_photo = Image.open(io.BytesIO(sent["files"]["input_image_0"][1]))
+    assert max(sent_photo.size) < 512  # the model rejects inputs of 512px or more
 
     Reply.status_code = 429
     with pytest.raises(ImageProviderError, match="busy"):
         cloudflare.CloudflareProvider().edit(room_photo(), "x", 0.5)
+
+
+def test_cloudflare_json_answer_with_base64_picture(monkeypatch):
+    import base64
+
+    from app.services.image_ai import cloudflare
+
+    monkeypatch.setattr(settings, "cf_account_id", "acct123")
+    monkeypatch.setattr(settings, "cf_api_token", "tok")
+    png = room_photo()
+
+    class Wrapped:
+        status_code = 200
+        headers = {"content-type": "application/json"}
+        text = ""
+
+        def json(self):
+            return {
+                "success": True,
+                "result": {"image": "data:image/png;base64," + base64.b64encode(png).decode()},
+            }
+
+    monkeypatch.setattr(cloudflare.httpx, "post", lambda *a, **k: Wrapped())
+    assert cloudflare.CloudflareProvider().edit(room_photo(), "x", 0.5) == png
+
+
+def test_studio_rejects_a_model_answer_that_is_not_a_picture(client, accounts, monkeypatch):
+    user = accounts.make("Asha", "asha@gmail.com")
+    oid = upload(client, user).json()["id"]
+    monkeypatch.setattr(mock_module.MockProvider, "edit", lambda self, image, prompt, strength: b"garbage")
+    r = generate(client, user, oid)
+    assert r.status_code == 502 and "usable picture" in r.json()["detail"]
+    with SessionLocal() as db:
+        assert db.query(DesignImage).count() == 1  # nothing was stored
 
 
 def test_cloudflare_rejection_is_logged_with_cloudflares_reason(monkeypatch, caplog):
