@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roomora AI - Login</title>
+  <link rel="icon" href="assets/img/logo.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+  <main class="auth-container">
+    <header class="auth-logo">
+      <div class="logo-mark"><img src="assets/img/logo.png" alt="Roomora AI logo"></div>
+      <h1>Roomora AI</h1>
+      <p>Reimagine your space.</p>
+    </header>
+
+    <div class="auth-card">
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab active" id="loginTab" role="tab" aria-selected="true">Login</button>
+        <button type="button" class="auth-tab" id="signupTab" role="tab" aria-selected="false">Sign Up</button>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <h2>Welcome Back</h2>
+        <p class="form-description">Login to continue designing your dream space.</p>
+
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="example@gmail.com" autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="loginPassword">Password</label>
+            <button type="button" class="btn-link" id="forgotLink">Forgot Password?</button>
+          </div>
+          <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+
+        <button class="btn btn-primary btn-block" type="submit" id="loginButton">Login</button>
+      </form>
+
+      <form id="signupForm" class="hidden" novalidate>
+        <h2>Create Account</h2>
+        <p class="form-description">Start designing beautiful spaces with Roomora AI.</p>
+
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Enter your full name" autocomplete="name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="signupEmail">Gmail Address</label>
+          <input type="email" id="signupEmail" placeholder="example@gmail.com" autocomplete="email" required>
+          <small class="form-hint" id="emailHint"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="signupMobile">Mobile Number</label>
+          <input type="tel" id="signupMobile" placeholder="9876543210" autocomplete="tel" required>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Create a strong password" autocomplete="new-password" required>
+          <div class="password-rules" aria-live="polite">
+            <p data-rule="length">✕ At least 8 characters</p>
+            <p data-rule="capital">✕ One capital letter</p>
+            <p data-rule="number">✕ One number</p>
+            <p data-rule="special">✕ One special character</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Confirm password" autocomplete="new-password" required>
+        </div>
+
+        <button class="btn btn-primary btn-block" type="submit" id="signupButton">Create Account</button>
+      </form>
+
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+    </div>
+  </main>
+
+  <div class="modal" id="forgotModal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="forgotTitle">Forgot password?</h2>
+        <button type="button" class="modal-close" data-close-modal aria-label="Close">✕</button>
+      </div>
+      <p>Password reset by email is not available in this version of Roomora AI.</p>
+      <p class="muted" style="margin-top: 8px">Please contact the administrator to have your password reset.</p>
+      <button type="button" class="btn btn-primary btn-block" style="margin-top: 20px" data-close-modal>Got it</button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script type="module" src="js/pages/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roomora AI - Seller Dashboard</title>
+  <link rel="icon" href="assets/img/logo.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body data-roles="seller">
+  <div class="sidebar-overlay" id="sidebarOverlay" data-action="close-sidebar"></div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo"><img src="assets/img/logo.png" alt="Roomora AI logo"></div>
+        <div><h2>Roomora AI</h2><span>SELLER PANEL</span></div>
+      </div>
+      <div class="sidebar-profile">
+        <div class="avatar" data-user-initials></div>
+        <div><strong data-user-name></strong><small data-user-role></small></div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item" data-section="overview"><span>▦</span> Overview</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-action="logout"><span>↪</span> Logout</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="mobile-menu" data-action="open-sidebar" aria-label="Open menu">☰</button>
+        <div class="topbar-actions">
+          <div class="top-profile">
+            <div class="avatar" data-user-initials></div>
+            <div><strong data-user-name></strong><small data-user-role></small></div>
+          </div>
+        </div>
+      </header>
+
+      <section id="overview" class="section">
+        <div class="heading">
+          <div>
+            <span class="eyebrow">SELLER PANEL</span>
+            <h1>Seller Dashboard</h1>
+            <p>Signed in as <strong data-user-name></strong>.</p>
+          </div>
+        </div>
+        <div class="card">
+          <p>This page is being rebuilt on the new backend and will appear in a later phase.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script type="module" src="js/pages/stub.js"></script>
+</body>
+</html>

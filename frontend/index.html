@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roomora AI</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <p class="muted" style="padding: 24px">Loading Roomora AI…</p>
+  <script src="config.js"></script>
+  <script type="module">
+    import { getUser, homeFor } from "./js/core/session.js";
+    const user = getUser();
+    window.location.replace(user ? homeFor(user.role) : "login.html");
+  </script>
+</body>
+</html>
