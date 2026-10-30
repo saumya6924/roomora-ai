@@ -166,6 +166,10 @@ def test_cloudflare_provider_builds_the_request(monkeypatch):
         status_code = 200
         headers = {"content-type": "image/png"}
         content = b"PNGDATA"
+        text = ""
+
+        def json(self):
+            raise ValueError("not json")
 
     def fake_post(url, json, headers, timeout):
         sent.update(url=url, json=json, headers=headers)
@@ -184,3 +188,25 @@ def test_cloudflare_provider_builds_the_request(monkeypatch):
     Reply.status_code = 429
     with pytest.raises(ImageProviderError, match="busy"):
         cloudflare.CloudflareProvider().edit(room_photo(), "x", 0.5)
+
+
+def test_cloudflare_rejection_is_logged_with_cloudflares_reason(monkeypatch, caplog):
+    """A 403 must tell the admin what Cloudflare said, without leaking anything to the customer."""
+    from app.services.image_ai import cloudflare
+
+    monkeypatch.setattr(settings, "cf_account_id", "acct123")
+    monkeypatch.setattr(settings, "cf_api_token", "secret-token")
+
+    class Rejected:
+        status_code = 403
+        headers = {"content-type": "application/json"}
+        text = ""
+
+        def json(self):
+            return {"errors": [{"code": 10000, "message": "Authentication error"}]}
+
+    monkeypatch.setattr(cloudflare.httpx, "post", lambda *a, **k: Rejected())
+    with caplog.at_level("WARNING"), pytest.raises(ImageProviderError, match="administrator needs to check"):
+        cloudflare.CloudflareProvider().edit(room_photo(), "x", 0.5)
+    assert "10000: Authentication error" in caplog.text
+    assert "secret-token" not in caplog.text

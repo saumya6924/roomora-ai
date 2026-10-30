@@ -6,12 +6,15 @@ Docs: https://developers.cloudflare.com/workers-ai/models/stable-diffusion-v1-5-
 
 import base64
 import io
+import logging
 
 import httpx
 from PIL import Image
 
 from app.core.config import settings
 from app.services.image_ai.base import ImageProvider, ImageProviderError
+
+log = logging.getLogger(__name__)
 
 MODEL = "@cf/runwayml/stable-diffusion-v1-5-img2img"
 MAX_SIDE = 512  # the model is trained at 512px; larger inputs are slower and cost more neurons
@@ -26,6 +29,15 @@ def prepare(image: bytes) -> bytes:
     out = io.BytesIO()
     photo.resize((width, height)).save(out, "PNG")
     return out.getvalue()
+
+
+def error_summary(response: httpx.Response) -> str:
+    """Cloudflare's own error codes and messages, e.g. '10000: Authentication error'."""
+    try:
+        errors = response.json().get("errors") or []
+        return "; ".join(f"{e.get('code')}: {e.get('message')}" for e in errors) or response.text[:200]
+    except ValueError:
+        return response.text[:200]
 
 
 class CloudflareProvider(ImageProvider):
@@ -47,8 +59,18 @@ class CloudflareProvider(ImageProvider):
         except httpx.HTTPError:
             raise ImageProviderError("The image service could not be reached. Please try again.") from None
 
+        if response.status_code >= 400:
+            # Cloudflare explains itself in the body (no secrets in it): keep it in the server log.
+            log.warning(
+                "Cloudflare Workers AI answered %s: %s", response.status_code, error_summary(response)
+            )
         if response.status_code == 429:
             raise ImageProviderError("The image service is busy right now. Please try again in a minute.")
+        if response.status_code in (401, 403):
+            raise ImageProviderError(
+                "The image service refused our credentials. "
+                "The administrator needs to check the Workers AI token."
+            )
         if response.status_code >= 400:
             raise ImageProviderError(
                 f"The image service could not create this design (error {response.status_code})."
