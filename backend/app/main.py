@@ -15,7 +15,22 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.db.session import engine
-from app.routers import admin, ai, auth, designers, designs, files, orders, products
+from app.routers import (
+    admin,
+    ai,
+    auth,
+    designer_panel,
+    designers,
+    designs,
+    earnings,
+    files,
+    notifications,
+    orders,
+    products,
+    reviews,
+    sellers,
+    uploads,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -39,10 +54,16 @@ def create_app() -> FastAPI:
     for router in (
         auth.router,
         products.router,
+        designer_panel.router,  # before designers.router: /designers/me/... must not match /designers/{id}
         designers.router,
         designers.bookings_router,
         orders.router,
         designs.router,
+        reviews.router,
+        notifications.router,
+        earnings.router,
+        sellers.router,
+        uploads.router,
         ai.router,
         admin.router,
         files.router,

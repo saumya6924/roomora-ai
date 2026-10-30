@@ -6,9 +6,10 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.enums import OrderItemStatus, PaymentStatus, ProductStatus
+from app.core.enums import NotificationType, OrderItemStatus, PaymentStatus, ProductStatus
 from app.models import Order, OrderItem, Product, User
 from app.schemas.commerce import OrderCreate
+from app.services.notifications import notify
 from app.services.platform import require_enabled
 
 
@@ -59,6 +60,27 @@ def place_order(db: Session, user: User, data: OrderCreate) -> Order:
 
     order.total_amount = total
     db.add(order)
+    db.flush()  # gives the order its id for the notifications below
+
+    for seller_id in {i.seller_id for i in order.items}:
+        count = sum(1 for i in order.items if i.seller_id == seller_id)
+        notify(
+            db,
+            seller_id,
+            NotificationType.ORDER,
+            "New order received",
+            f"Order #{order.id} · {count} item(s)",
+        )
+    for product in products:
+        if product.stock <= product.low_stock_threshold:
+            notify(
+                db,
+                product.seller_id,
+                NotificationType.STOCK,
+                "Low stock alert",
+                f"{product.name} · {product.stock} units left",
+            )
+
     db.commit()
     db.refresh(order)
     return order
@@ -82,9 +104,29 @@ def set_item_status(db: Session, item: OrderItem, new_status: OrderItemStatus) -
     if order.payment_method == "COD" and live and all(i.status == OrderItemStatus.DELIVERED for i in live):
         order.payment_status = PaymentStatus.PAID
 
+    notify(
+        db,
+        order.user_id,
+        NotificationType.ORDER,
+        "Order update",
+        f"{item.product_name} is now {new_status.value}",
+    )
     db.commit()
     db.refresh(item)
     return item
+
+
+def order_status(order: Order) -> str:
+    """One status for the whole order, derived from its items (used by the admin Orders page)."""
+    statuses = [i.status for i in order.items]
+    if statuses and all(s == OrderItemStatus.CANCELLED for s in statuses):
+        return "cancelled"
+    live = [s for s in statuses if s != OrderItemStatus.CANCELLED]
+    if live and all(s == OrderItemStatus.DELIVERED for s in live):
+        return "delivered"
+    if any(s != OrderItemStatus.PLACED for s in live):
+        return "processing"
+    return "pending"
 
 
 def seller_row(item: OrderItem) -> dict:

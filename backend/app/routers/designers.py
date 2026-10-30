@@ -5,14 +5,16 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.enums import BookingStatus, DesignerStatus, Role
+from app.core.enums import BookingStatus, DesignerStatus, NotificationType, Role
 from app.core.security import get_current_user, require_role
 from app.db.session import get_db
 from app.models import Booking, DesignerProfile, User
+from app.routers import designer_panel as panel
 from app.routers._common import parse_enum
 from app.schemas.catalog import DesignerOut, DesignerProfileCreate
 from app.schemas.commerce import BookingCreate, BookingOut
 from app.schemas.common import StatusUpdate
+from app.services.notifications import notify
 from app.services.platform import require_enabled
 
 router = APIRouter(prefix="/designers", tags=["Designers"])
@@ -60,6 +62,31 @@ def list_designers(db: Session = Depends(get_db)):
         .all()
     )
     return [designer_out(p) for p in profiles]
+
+
+PRIVATE_KEYS = {
+    "email",
+    "mobile",
+    "bank_holder",
+    "bank_account_masked",
+    "ifsc",
+    "notification_prefs",
+    "response_hours",
+}
+
+
+@router.get("/{designer_id}")
+def designer_profile(designer_id: int, db: Session = Depends(get_db)):
+    """A designer's public page: profile, active services, portfolio and rating. Counts as a profile view."""
+    profile = db.get(DesignerProfile, designer_id)
+    if profile is None or profile.status != DesignerStatus.APPROVED or not profile.is_visible:
+        raise HTTPException(status_code=404, detail="Designer not found")
+    profile.view_count += 1
+    db.commit()
+    data = {k: v for k, v in panel.profile_out(db, profile).items() if k not in PRIVATE_KEYS}
+    data["services"] = [panel.service_out(s) for s in profile.services if s.is_active]
+    data["portfolio"] = [panel.portfolio_out(p) for p in profile.portfolio]
+    return data
 
 
 @router.post("", response_model=DesignerOut, status_code=201)
@@ -140,6 +167,13 @@ def create_booking(
     )
     booking.email = booking.email.lower()
     db.add(booking)
+    notify(
+        db,
+        profile.user_id,
+        NotificationType.BOOKING,
+        "New booking request",
+        f"{booking.name} · {booking.project_type} · {booking.days} day(s)",
+    )
     db.commit()
     db.refresh(booking)
     return booking
@@ -183,9 +217,19 @@ def update_booking_status(
             status_code=400, detail=f"A {booking.status.value} booking cannot become {new_status.value}"
         )
 
+    now = datetime.now(UTC)
+    if booking.status == BookingStatus.PENDING:
+        booking.responded_at = now  # first answer to the request, used for the response-time figure
     booking.status = new_status
     if new_status == BookingStatus.COMPLETED:
-        booking.completed_at = datetime.now(UTC)
+        booking.completed_at = now
+    notify(
+        db,
+        booking.user_id,
+        NotificationType.BOOKING,
+        f"Booking {new_status.value}",
+        f"{booking.designer.user.name} marked your booking as {new_status.value}",
+    )
     db.commit()
     db.refresh(booking)
     return booking

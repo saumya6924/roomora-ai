@@ -88,3 +88,15 @@ def test_registration_can_be_closed_by_platform_setting(client):
         db.commit()
     body = {"name": "Late", "email": "late@gmail.com", "mobile": "9876543210", "password": PASSWORD}
     assert client.post("/auth/signup", json=body).status_code == 403
+
+
+def test_account_deletion_request_notifies_admins(client, accounts):
+    admin = accounts.make("Root", "root@gmail.com", Role.ADMIN)
+    user = accounts.make("Asha", "asha@gmail.com")
+    assert client.post("/auth/delete-request", headers=user["headers"]).status_code == 200
+    assert client.post("/auth/delete-request").status_code == 401
+    feed = client.get("/notifications", headers=admin["headers"]).json()["items"]
+    assert feed[0]["title"] == "Account deletion requested" and "asha@gmail.com" in feed[0]["body"]
+    assert (
+        client.get("/auth/me", headers=user["headers"]).status_code == 200
+    )  # nothing is deleted automatically

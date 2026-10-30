@@ -22,6 +22,7 @@ class BookingCreate(BaseModel):
 class BookingOut(ORMModel):
     id: int
     designer_id: int
+    designer_name: str
     name: str
     mobile: str
     email: str

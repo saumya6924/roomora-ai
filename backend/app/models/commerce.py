@@ -80,7 +80,12 @@ class Booking(Base):
         enum_type(BookingStatus, "booking_status"), default=BookingStatus.PENDING, index=True
     )
     created_at: Mapped[datetime] = created_at_col()
+    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped[User] = relationship()
     designer: Mapped[DesignerProfile] = relationship()
+
+    @property
+    def designer_name(self) -> str:
+        return self.designer.user.name

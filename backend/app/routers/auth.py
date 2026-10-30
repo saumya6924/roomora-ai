@@ -1,10 +1,12 @@
 """Signup, login, and "who am I?"."""
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.enums import Role
+from app.core.enums import NotificationType, Role
 from app.core.ratelimit import login_limit, signup_limit
 from app.core.security import (
     create_access_token,
@@ -23,6 +25,7 @@ from app.schemas.auth import (
     UserOut,
 )
 from app.schemas.common import Message
+from app.services.notifications import notify_admins
 from app.services.platform import require_enabled
 
 router = APIRouter(prefix="/auth", tags=["Login & Signup"])
@@ -64,6 +67,8 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=403, detail="This account is blocked")
 
+    user.last_login_at = datetime.now(UTC)
+    db.commit()
     return {"access_token": create_access_token(user.id), "user": user}
 
 
@@ -100,3 +105,16 @@ def change_password(
     user.password_hash = hash_password(data.new_password)
     db.commit()
     return {"message": "Password updated"}
+
+
+@router.post("/delete-request", response_model=Message)
+def request_account_deletion(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Tell the admins that this user wants their account removed. Nothing is deleted automatically."""
+    notify_admins(
+        db,
+        NotificationType.SYSTEM,
+        "Account deletion requested",
+        f"{user.name} ({user.email}) asked to delete their account.",
+    )
+    db.commit()
+    return {"message": "Account deletion request submitted"}

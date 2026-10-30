@@ -3,8 +3,8 @@ from app.db.session import SessionLocal
 from app.models import PlatformSetting
 
 
-def make_designer(client, accounts, price=3500):
-    admin = accounts.make("Root", "root@gmail.com", Role.ADMIN)
+def make_designer(client, accounts, price=3500, admin=None):
+    admin = admin or accounts.make("Root", "root@gmail.com", Role.ADMIN)
     designer = accounts.make("Dia Designer", "dia@gmail.com")
     r = client.post(
         "/designers",

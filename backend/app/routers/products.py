@@ -5,16 +5,18 @@ or FastAPI would try to read "mine" as a product id.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.enums import ProductStatus, Role
+from app.core.enums import NotificationType, ProductStatus, Role
 from app.core.security import require_role
 from app.db.session import get_db
 from app.models import OrderItem, Product, ProductImage, User
 from app.routers._common import parse_enum
 from app.schemas.catalog import ProductCreate, ProductOut, ProductUpdate
 from app.schemas.common import Message, StatusUpdate
+from app.services.notifications import notify
 from app.services.platform import require_enabled
 
 router = APIRouter(prefix="/products", tags=["Furniture / Products"])
@@ -145,6 +147,25 @@ def delete_product(
     return {"message": "Product deleted"}
 
 
+class StockUpdate(BaseModel):
+    stock: int = Field(ge=0)
+
+
+@router.patch("/{product_id}/stock", response_model=ProductOut)
+def set_stock(
+    product_id: int,
+    data: StockUpdate,
+    user: User = Depends(seller_or_admin),
+    db: Session = Depends(get_db),
+):
+    """The Restock button on the seller's Inventory page."""
+    product = _get_own_product(product_id, user, db)
+    product.stock = data.stock
+    db.commit()
+    db.refresh(product)
+    return product
+
+
 @router.patch("/{product_id}/status", response_model=ProductOut)
 def set_product_status(
     product_id: int,
@@ -157,6 +178,13 @@ def set_product_status(
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     product.status = new_status
+    notify(
+        db,
+        product.seller_id,
+        NotificationType.PRODUCT,
+        f"Product {new_status.value}",
+        f"{product.name} is now {new_status.value}",
+    )
     db.commit()
     db.refresh(product)
     return product
