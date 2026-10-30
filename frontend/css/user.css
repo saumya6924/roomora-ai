@@ -2618,3 +2618,45 @@ main {
         grid-template-columns: 1fr;
     }
 }
+
+/* ---------- server wake-up page ---------- */
+.wake-status {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 13px;
+    background: #f1eee3;
+    border: 1px solid var(--border-light);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--muted);
+}
+
+.wake-status.ok {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.wake-status.busy {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.wake-status.bad {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.wake-details {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 13px;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+}
+
+.wake-details p {
+    font-size: 10px;
+    margin: 4px 0;
+    color: var(--text);
+}

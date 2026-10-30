@@ -1,4 +1,4 @@
-import { api } from "../core/api.js";
+import { API, api } from "../core/api.js";
 import { clearSession, getToken, homeFor, saveSession } from "../core/session.js";
 import { openModal, qs, qsa, setBusy } from "../core/ui.js";
 
@@ -101,6 +101,9 @@ signupForm.addEventListener("submit", async (event) => {
     done();
   }
 });
+
+// Opening this page is the first sign of a visitor: nudge a sleeping free-tier server awake in the background.
+fetch(`${API}/health`, { cache: "no-store" }).catch(() => {});
 
 // Already logged in? Skip the form.
 if (getToken()) {

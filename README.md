@@ -6,7 +6,7 @@ and book interior designers; sellers, designers and an admin each get their own 
 | Part | Technology | Hosted on |
 |---|---|---|
 | Frontend | Plain HTML, CSS and JavaScript (ES modules, no build step) | Cloudflare Pages |
-| Backend API | Python, FastAPI, SQLAlchemy, Alembic | Railway |
+| Backend API | Python, FastAPI, SQLAlchemy, Alembic | Render (free plan) |
 | Database and file storage | Postgres + Storage | Supabase |
 | Room-photo redesign | Cloudflare Workers AI (free tier), behind a swappable adapter | Cloudflare |
 
@@ -59,6 +59,19 @@ backend uses a local SQLite file; point `DATABASE_URL` at Supabase Postgres to u
 | Designer | saumya@roomora.com | Designer@1234 |
 
 New customers can sign up with a Gmail address. Staff accounts can only be created by an admin.
+
+## Deploying
+
+| Piece | Where | Notes |
+|---|---|---|
+| Database + file storage | Supabase project `roomora` (Mumbai) | Schema, row-level security and buckets are applied. |
+| Backend | Render free web service (`render.yaml`) | Dashboard: New > Blueprint > this repo. It asks for `DATABASE_URL` (Supabase *Session pooler* string), `SUPABASE_SERVICE_KEY` and `CORS_ORIGINS`. |
+| Frontend | Cloudflare Pages, folder `frontend`, no build step | Then set the Render URL in `frontend/config.js` and the site URL in `CORS_ORIGINS`. |
+
+**The free backend sleeps** after 15 minutes without traffic, and the first request afterwards takes about a minute.
+Open `wake.html` (linked from the login page) and press the button before a demo: it wakes the server and pings it
+again 4 more times, 13 minutes apart, which keeps it awake for roughly an hour. Keep that tab open. Rate-limit
+counters live in memory, so they reset whenever the server sleeps.
 
 ## Room photo studio
 

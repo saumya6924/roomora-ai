@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roomora AI - Wake the server</title>
+  <link rel="icon" href="assets/img/logo.png">
+  <link rel="stylesheet" href="css/user.css">
+</head>
+
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="logo-mark"><img src="assets/img/logo.png" alt="Roomora AI Logo"></div>
+      <h1>Roomora AI</h1>
+      <p>Server wake-up</p>
+    </div>
+
+    <div class="auth-card">
+      <h2>Wake up the server</h2>
+      <p class="form-description">
+        The free hosting plan puts the server to sleep when nobody uses it. Press the button before a demo:
+        it wakes the server (the first time can take about a minute) and then keeps it awake for roughly an hour.
+      </p>
+
+      <div id="wakeStatus" class="wake-status" role="status" aria-live="polite">Server status unknown</div>
+
+      <button class="primary-button" id="wakeButton" type="button">⏰ Wake up the server</button>
+      <button class="secondary-button" id="stopButton" type="button" style="display:none;width:100%;margin-top:10px">Stop keeping it awake</button>
+
+      <div id="wakeDetails" class="wake-details" style="display:none"></div>
+
+      <p class="auth-message" style="margin-top:18px">Keep this tab open while you need the server awake.</p>
+      <p class="auth-message"><a href="login.html" style="color:var(--olive-dark);font-weight:700">← Back to login</a></p>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script type="module" src="js/pages/wake.js"></script>
+</body>
+</html>

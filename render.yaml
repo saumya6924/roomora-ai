@@ -1,0 +1,27 @@
+# Render blueprint: the backend API as a free Docker web service.
+# Dashboard: New > Blueprint > pick this repo. Render asks for the three values marked "sync: false".
+services:
+  - type: web
+    name: roomora-api
+    runtime: docker
+    plan: free
+    region: singapore # closest Render region to the Mumbai database
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true # Render creates a random value and keeps it secret
+      - key: DATABASE_URL # Supabase "Session pooler" connection string, with the database password
+        sync: false
+      - key: SUPABASE_URL
+        value: https://pqmnxtxzrkteqnxdpybg.supabase.co
+      - key: SUPABASE_SERVICE_KEY # Supabase > Project Settings > API Keys > service_role
+        sync: false
+      - key: CORS_ORIGINS # the site's address, e.g. https://roomora-ai.pages.dev
+        sync: false
+      - key: IMAGE_PROVIDER
+        value: auto
